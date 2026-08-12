@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fleet Management & Driver Sign System</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap');
+
+    :root {
+      --primary: #dff7ff;
+      --accent: #2596ff;
+      --accent-strong: #0f6bff;
+      --accent-soft: rgba(37, 150, 255, 0.18);
+      --success: #14d98b;
+      --success-soft: rgba(20, 217, 139, 0.16);
+      --vip-gold: #f7c948;
+      --bg: #04070b;
+      --bg-panel: rgba(7, 15, 24, 0.88);
+      --card-bg: rgba(10, 20, 31, 0.9);
+      --card-alt: rgba(8, 28, 24, 0.88);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #eef8ff;
+      --muted-text: #8aa3b8;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(37, 150, 255, 0.24), transparent 26%),
+        radial-gradient(circle at top right, rgba(20, 217, 139, 0.18), transparent 24%),
+        linear-gradient(160deg, #02050a 0%, #07111a 42%, #020507 100%);
+      color: var(--text);
+      padding: 0;
+      font-family: 'DM Sans', sans-serif;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -120px;
+      left: -60px;
+      background: rgba(37, 150, 255, 0.22);
+    }
+
+    body::after {
+      right: -80px;
+      bottom: -100px;
+      background: rgba(20, 217, 139, 0.16);
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 20px;
+      padding: 22px;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: rgba(6, 12, 20, 0.82);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    .sidebar-brand {
+      display: grid;
+      gap: 6px;
+      border-bottom: 1px solid rgba(138, 163, 184, 0.14);
+      padding-bottom: 14px;
+    }
+
+    .sidebar-brand h2 {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.2rem;
+      color: var(--primary);
+      letter-spacing: 0.03em;
+    }
+
+    .sidebar-brand p {
+      margin: 0;
+      font-size: 0.84rem;
+      color: var(--muted-text);
+    }
+
+    .sidebar-nav {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      padding: 12px 14px;
+      border: 1px solid rgba(138, 163, 184, 0.18);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted-text);
+      text-align: left;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 160ms ease;
+    }
+
+    .nav-btn:hover {
+      color: var(--text);
+      border-color: rgba(37, 150, 255, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+      color: #03121d;
+      border-color: transparent;
+      box-shadow: 0 10px 28px rgba(12, 110, 255, 0.3);
+    }
+
+    .sidebar-note {
+      border: 1px solid rgba(20, 217, 139, 0.24);
+      background: rgba(20, 217, 139, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      font-size: 0.82rem;
+      color: #a2f3cf;
+    }
+
+    .sidebar,
+    header {
+      animation: shellReveal 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    header {
+      animation-delay: 100ms;
+    }
+
+    .content-area {
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    header {
+      position: relative;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      margin-bottom: 0;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(6, 12, 20, 0.72);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 2vw, 2rem);
+      color: var(--primary);
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .page-subtitle {
+      margin-top: 4px;
+      color: var(--muted-text);
+      font-size: 0.9rem;
+    }
+
+    .view-panel { display: none; }
+    .view-panel.active {
+      display: block;
+      position: relative;
+      z-index: 1;
+      animation: panelSwitch 300ms ease both;
+    }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .card {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+        var(--card-bg);
+      padding: 22px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(14px);
+    }
+
+    .view-panel.active .card {
+      animation: cardReveal 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .view-panel.active .card:nth-child(1) { animation-delay: 40ms; }
+    .view-panel.active .card:nth-child(2) { animation-delay: 100ms; }
+    .view-panel.active .card:nth-child(3) { animation-delay: 160ms; }
+    .view-panel.active .card:nth-child(4) { animation-delay: 220ms; }
+    .view-panel.active .card:nth-child(5) { animation-delay: 280ms; }
+    .view-panel.active .card:nth-child(6) { animation-delay: 340ms; }
+    .view-panel.active .card:nth-child(7) { animation-delay: 400ms; }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(37, 150, 255, 0.75), rgba(20, 217, 139, 0.75), transparent);
+    }
+
+    #manager-view .card:nth-child(odd) {
+      background:
+        linear-gradient(180deg, rgba(37, 150, 255, 0.08), rgba(255, 255, 255, 0.01)),
+        var(--card-bg);
+    }
+
+    #manager-view .card:nth-child(even) {
+      background:
+        linear-gradient(180deg, rgba(20, 217, 139, 0.08), rgba(255, 255, 255, 0.01)),
+        var(--card-alt);
+    }
+
+    #driver-view .card {
+      background:
+        linear-gradient(180deg, rgba(20, 217, 139, 0.08), rgba(37, 150, 255, 0.04)),
+        rgba(6, 17, 20, 0.92);
+    }
+
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 16px;
+      color: var(--primary);
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.02em;
+    }
+
+    .form-group { margin-bottom: 12px; }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #b7d1e2;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid rgba(138, 163, 184, 0.18);
+      border-radius: 14px;
+      font-size: 0.95rem;
+      background: rgba(4, 10, 18, 0.78);
+      color: var(--text);
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    select option {
+      background: #0a1422;
+      color: #eef8ff;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #6f8799;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(37, 150, 255, 0.7);
+      box-shadow: 0 0 0 4px rgba(37, 150, 255, 0.12);
+      transform: translateY(-1px);
+    }
+    
+    button.btn-primary {
+      width: 100%;
+      padding: 11px 14px;
+      background: linear-gradient(135deg, var(--accent-strong) 0%, var(--success) 100%);
+      color: #03121d;
+      border: none;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 0.03em;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+      box-shadow: 0 14px 28px rgba(10, 110, 255, 0.22);
+    }
+
+    button.btn-primary:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+      box-shadow: 0 18px 36px rgba(10, 110, 255, 0.3);
+    }
+
+    .item-list { list-style: none; margin-top: 12px; }
+    .item-card {
+      padding: 14px;
+      border: 1px solid rgba(138, 163, 184, 0.12);
+      border-radius: 18px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    }
+    .item-card.stack { align-items: flex-start; flex-direction: column; gap: 10px; }
+    .muted { color: var(--muted-text); font-size: 0.85rem; }
+    
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+    .badge-vip { background: rgba(247, 201, 72, 0.18); color: #ffd76b; border: 1px solid var(--vip-gold); }
+    .badge-normal { background: rgba(138, 163, 184, 0.14); color: #cce0ee; }
+    .badge-info { background: var(--accent-soft); color: #8ed0ff; }
+    .badge-success { background: var(--success-soft); color: #74f4bf; }
+    .badge-warning { background: rgba(247, 201, 72, 0.14); color: #ffe18c; }
+
+    .split-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .stack-gap { display: grid; gap: 12px; }
+    .inline-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .btn-secondary {
+      width: auto;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid rgba(138, 163, 184, 0.14);
+      border-radius: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 160ms ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(20, 217, 139, 0.46);
+      transform: translateY(-1px);
+      background: rgba(20, 217, 139, 0.08);
+    }
+
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; }
+    .status-pill.live { background: var(--success-soft); color: #7ef0c1; }
+    .status-pill.idle { background: rgba(138, 163, 184, 0.14); color: #c7dae7; }
+    .gps-readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .gps-stat { padding: 12px; border: 1px solid rgba(138, 163, 184, 0.14); border-radius: 16px; background: rgba(6, 14, 24, 0.88); }
+    .gps-stat strong { display: block; font-size: 1rem; margin-top: 4px; }
+    .message-preview { width: 100%; }
+    .card h3 { font-size: 0.95rem; margin: 16px 0 10px; color: #d4f4ff; font-family: 'Space Grotesk', sans-serif; }
+    .card h4 { font-size: 0.82rem; margin: 12px 0 8px; color: #97d9ff; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+    .map-frame { width: 100%; height: 260px; border: 1px solid rgba(37, 150, 255, 0.22); border-radius: 18px; margin-top: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03); }
+    .tablet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+    .task-meta { display: grid; gap: 4px; }
+    .mono { font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.03em; }
+
+    .driver-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border: 1px solid rgba(20, 217, 139, 0.28);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(20, 217, 139, 0.15), rgba(37, 150, 255, 0.12));
+      margin-bottom: 16px;
+    }
+
+    .driver-status-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.95rem;
+      color: #d8fff0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .driver-status-meta {
+      color: #9adcc1;
+      font-size: 0.85rem;
+    }
+
+    .kiosk-actions {
+      display: grid;
+      gap: 8px;
+    }
+
+    .kiosk-btn {
+      min-height: 46px;
+      border-radius: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      border: 1px solid rgba(138, 163, 184, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 160ms ease;
+    }
+
+    .kiosk-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(20, 217, 139, 0.46);
+      background: rgba(20, 217, 139, 0.1);
+    }
+
+    .kiosk-btn.primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+      color: #03121d;
+      border: none;
+    }
+
+    .kiosk-btn.danger {
+      border-color: rgba(255, 111, 111, 0.35);
+      color: #ffd5d5;
+    }
+
+    body.kiosk-mode .app-shell {
+      grid-template-columns: 1fr;
+      padding: 10px;
+    }
+
+    body.kiosk-mode .sidebar,
+    body.kiosk-mode header,
+    body.kiosk-mode #manager-view {
+      display: none !important;
+    }
+
+    body.kiosk-mode .content-area {
+      gap: 0;
+    }
+
+    body.kiosk-mode #driver-view {
+      display: block;
+      min-height: calc(100vh - 20px);
+    }
+
+    body.kiosk-mode #driver-view .tablet-grid {
+      grid-template-columns: 1fr;
+    }
+
+    body.kiosk-mode .driver-status-bar {
+      position: sticky;
+      top: 0;
+      z-index: 12;
+      backdrop-filter: blur(14px);
+    }
+
+    /* Manager PIN overlay */
+    #manager-pin-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(1,4,10,0.92);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+    }
+    #manager-pin-overlay.visible { display: flex; }
+    .pin-card {
+      background: rgba(8,18,30,0.97);
+      border: 1px solid rgba(37,150,255,0.35);
+      border-radius: 24px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 380px;
+      display: grid;
+      gap: 14px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    }
+    .pin-card::before {
+      content: '';
+      display: block;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      margin-bottom: 4px;
+    }
+    .pin-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+    }
+    .pin-error {
+      display: none;
+      background: rgba(255,80,80,0.12);
+      border: 1px solid rgba(255,80,80,0.35);
+      border-radius: 10px;
+      padding: 9px 13px;
+      color: #ffb3b3;
+      font-size: 0.88rem;
+    }
+    .pin-error.visible { display: block; }
+    .btn-danger {
+      padding: 5px 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,80,80,0.35);
+      background: rgba(255,80,80,0.08);
+      color: #ffb3b3;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      transition: all 140ms ease;
+    }
+    .btn-danger:hover { background: rgba(255,80,80,0.18); }
+    #driver-signin-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(37, 150, 255, 0.28), transparent 40%),
+        radial-gradient(circle at 70% 70%, rgba(20, 217, 139, 0.22), transparent 40%),
+        rgba(2, 5, 12, 0.97);
+      backdrop-filter: blur(10px);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 24px;
+    }
+
+    #driver-signin-overlay.visible {
+      display: flex;
+    }
+
+    .signin-card {
+      background: rgba(8, 18, 30, 0.95);
+      border: 1px solid rgba(37, 150, 255, 0.35);
+      border-radius: 28px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(20, 217, 139, 0.12);
+      display: grid;
+      gap: 18px;
+    }
+
+    .signin-card::before {
+      content: '';
+      display: block;
+      height: 2px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--success));
+      margin-bottom: 4px;
+    }
+
+    .signin-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    .signin-subtitle {
+      color: var(--muted-text);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: -10px;
+    }
+
+    .signin-error {
+      display: none;
+      background: rgba(255, 80, 80, 0.12);
+      border: 1px solid rgba(255, 80, 80, 0.35);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #ffb3b3;
+      font-size: 0.88rem;
+    }
+
+    .signin-error.visible { display: block; }
+
+    #kiosk-exit-btn {
+      display: none;
+    }
+
+    body.kiosk-mode #kiosk-exit-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 130px;
+    }
+
+    #driver-view .card {
+      padding: 26px;
+      border-radius: 24px;
+    }
+
+    #driver-view .card h2 {
+      font-size: 1.3rem;
+      margin-bottom: 18px;
+    }
+
+    #driver-view .item-card {
+      padding: 16px;
+      border-radius: 20px;
+      border-color: rgba(20, 217, 139, 0.2);
+    }
+
+    #driver-view .task-meta {
+      gap: 7px;
+    }
+
+    #driver-view .task-meta small {
+      font-size: 0.92rem;
+      line-height: 1.35;
+      color: #a8cfe0;
+    }
+
+    #driver-view .btn-primary,
+    #driver-view .btn-secondary,
+    #driver-view button {
+      min-height: 48px;
+      font-size: 0.97rem;
+      border-radius: 14px;
+    }
+
+    #driver-view input,
+    #driver-view select,
+    #driver-view textarea {
+      min-height: 48px;
+      font-size: 1rem;
+      border-radius: 14px;
+    }
+
+    #driver-view textarea {
+      min-height: 110px;
+    }
+
+    #driver-view label {
+      font-size: 0.82rem;
+    }
+
+    @media (min-width: 1200px) {
+      .content-area {
+        max-width: 1660px;
+        width: 100%;
+      }
+
+      #driver-view .tablet-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: 228px minmax(0, 1fr);
+        gap: 14px;
+        padding: 14px;
+      }
+
+      .sidebar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      #driver-view .tablet-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #driver-view .inline-actions {
+        width: 100%;
+      }
+
+      #driver-view .inline-actions button {
+        flex: 1 1 calc(50% - 8px);
+      }
+
+      #driver-view .driver-status-bar {
+        position: sticky;
+        top: 0;
+        z-index: 11;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .split-row, .gps-readout { grid-template-columns: 1fr; }
+      .app-shell { grid-template-columns: 1fr; padding: 14px; }
+      .sidebar { padding: 14px; }
+      header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .driver-status-bar { flex-direction: column; align-items: flex-start; }
+      #driver-view .card { padding: 18px; }
+      #driver-view .inline-actions {
+        width: 100%;
+      }
+      #driver-view .inline-actions button {
+        flex: 1 1 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    @keyframes cardReveal {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.985);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes panelSwitch {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shellReveal {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .license-preview { max-width: 80px; max-height: 50px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(138, 163, 184, 0.18); }
+
+    /* Fullscreen Sign Overlay */
+    #fullscreen-sign {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(37, 150, 255, 0.22), transparent 28%),
+        radial-gradient(circle at bottom, rgba(20, 217, 139, 0.16), transparent 30%),
+        rgba(1, 4, 10, 0.97);
+      color: #ffffff;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      padding: 40px;
+    }
+
+    #fullscreen-sign .vip-banner {
+      color: var(--vip-gold);
+      font-size: 2rem;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      font-weight: 900;
+    }
+
+    #fullscreen-sign .client-name-display {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      font-family: 'Space Grotesk', sans-serif;
+      text-transform: uppercase;
+      line-height: 1.1;
+      margin-bottom: 30px;
+      text-shadow: 0 0 28px rgba(37, 150, 255, 0.24);
+    }
+
+    #fullscreen-sign .close-hint {
+      position: absolute;
+      bottom: 20px;
+      font-size: 0.9rem;
+      color: #83a1b6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <h2>Fleet Command</h2>
+        <p>Dispatch, assets, and realtime tracking</p>
+      </div>
+
+      <div class="sidebar-nav">
+        <button class="nav-btn active" onclick="switchView('manager-view', this)">Manager Dashboard</button>
+        <button class="nav-btn" onclick="switchView('driver-view', this)">Driver Tablet UX</button>
+      </div>
+
+      <div class="sidebar-note">
+        Each tablet can be linked to a SIM and vehicle for operational monitoring and telemetry logs.
+      </div>
+
+      <div class="sidebar-note" style="border-color:rgba(37,150,255,0.28); background:rgba(37,150,255,0.08); color:#a2d8ff;">
+        Default manager PIN: <strong>1234</strong><br>
+        To change: open browser console and run:<br>
+        <span class="mono" style="font-size:0.77rem;">localStorage.setItem('fleet_manager_pin','NEWPIN')</span>
+      </div>
+      </div>
+    </aside>
+
+    <div class="content-area">
+  <header>
+    <div>
+      <h1>Fleet Dispatch & Tablet Portal</h1>
+      <div class="page-subtitle">Blue/Green Command Theme for Manager and Driver Operations</div>
+    </div>
+  </header>
+
+  <!-- MANAGER DASHBOARD VIEW -->
+  <main id="manager-view" class="view-panel active">
+    <div class="grid">
+      
+      <!-- Driver Management & License Upload -->
+      <section class="card">
+        <h2>Driver Management & License Upload</h2>
+        <form id="driver-form">
+          <div class="form-group">
+            <label for="driver-name">Driver Full Name</label>
+            <input type="text" id="driver-name" required placeholder="e.g. John Doe">
+          </div>
+          <div class="form-group">
+            <label for="driver-mobile">Mobile Number</label>
+            <input type="tel" id="driver-mobile" required placeholder="e.g. +44 7700 900123">
+          </div>
+          <div class="form-group">
+            <label for="driver-license">Upload Driving License (Image/Doc)</label>
+            <input type="file" id="driver-license" accept="image/*" required>
+          </div>
+          <button type="submit" class="btn-primary">Register Driver</button>
+        </form>
+
+        <ul id="driver-list" class="item-list"></ul>
+      </section>
+
+      <!-- Client Status & Preferences -->
+      <section class="card">
+        <h2>Client Management & Preferences</h2>
+        <form id="client-form">
+          <div class="form-group">
+            <label for="client-name">Client Full Name</label>
+            <input type="text" id="client-name" required placeholder="e.g. Sarah Jenkins">
+          </div>
+          <div class="form-group">
+            <label for="client-status">Client Status</label>
+            <select id="client-status">
+              <option value="NORMAL">Normal</option>
+              <option value="VIP">VIP</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="client-prefs">Preferences / Notes</label>
+            <textarea id="client-prefs" rows="2" placeholder="e.g. Requires airport sign, bottled water"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Save Client Record</button>
+        </form>
+
+        <ul id="client-list" class="item-list"></ul>
+      </section>
+
+      <!-- Scheduler -->
+      <section class="card">
+        <h2>Fleet Assets & Tablet Registry</h2>
+
+        <h4>Operations Account</h4>
+        <form id="ops-config-form" class="stack-gap">
+          <div class="form-group">
+            <label for="ops-email">Fleet Email (Google Maps / Calendar)</label>
+            <input type="email" id="ops-email" placeholder="e.g. fleet.ops@company.com" required>
+          </div>
+          <button type="submit" class="btn-primary">Save Operations Email</button>
+        </form>
+        <div id="ops-email-status" class="muted" style="margin-top: 8px;">No operations email saved yet.</div>
+
+        <h4>Add Vehicle</h4>
+        <form id="vehicle-form" class="stack-gap">
+          <div class="split-row">
+            <div class="form-group">
+              <label for="vehicle-name">Vehicle Name</label>
+              <input type="text" id="vehicle-name" placeholder="e.g. Mercedes V-Class" required>
+            </div>
+            <div class="form-group">
+              <label for="vehicle-plate">Plate Number</label>
+              <input type="text" id="vehicle-plate" placeholder="e.g. AB12 CDE" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="vehicle-capacity-size">Capacity</label>
+            <input type="number" id="vehicle-capacity-size" min="1" placeholder="e.g. 6" required>
+          </div>
+          <button type="submit" class="btn-primary">Register Vehicle</button>
+        </form>
+        <ul id="vehicle-list" class="item-list"></ul>
+
+        <h4>Add Tablet / iPad Unit</h4>
+        <form id="tablet-form" class="stack-gap">
+          <div class="split-row">
+            <div class="form-group">
+              <label for="tablet-id">Tablet ID</label>
+              <input type="text" id="tablet-id" placeholder="e.g. TAB-001" required>
+            </div>
+            <div class="form-group">
+              <label for="tablet-sim-phone">SIM Card Phone Number</label>
+              <input type="tel" id="tablet-sim-phone" placeholder="e.g. +44 7700 900111" required>
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="tablet-email">Tablet Login Email (Optional)</label>
+              <input type="email" id="tablet-email" placeholder="e.g. fleet.ops@company.com">
+            </div>
+            <div class="form-group">
+              <label for="tablet-vehicle">Assigned Vehicle</label>
+              <select id="tablet-vehicle"></select>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Register Tablet Unit</button>
+        </form>
+        <ul id="tablet-list" class="item-list"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Trip & Tour Scheduler</h2>
+        <form id="schedule-form" class="stack-gap">
+          <div class="split-row">
+            <div class="form-group">
+              <label for="schedule-type">Entry Type</label>
+              <select id="schedule-type">
+                <option value="TRIP">Trip</option>
+                <option value="TOUR">Tour</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="schedule-client">Client</label>
+              <select id="schedule-client"></select>
+            </div>
+            <div class="form-group">
+              <label for="schedule-driver">Driver</label>
+              <select id="schedule-driver"></select>
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="schedule-vehicle">Vehicle</label>
+              <select id="schedule-vehicle"></select>
+            </div>
+            <div class="form-group">
+              <label for="schedule-tablet">Tablet ID</label>
+              <select id="schedule-tablet"></select>
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="schedule-date">Date</label>
+              <input type="date" id="schedule-date" required>
+            </div>
+            <div class="form-group">
+              <label for="schedule-capacity">Client Capacity</label>
+              <input type="number" id="schedule-capacity" min="1" placeholder="e.g. 4">
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="schedule-pickup-time">Pick Up Time</label>
+              <input type="time" id="schedule-pickup-time" required>
+            </div>
+            <div class="form-group">
+              <label for="schedule-delivery-time">Delivery Time</label>
+              <input type="time" id="schedule-delivery-time" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="schedule-location">Pickup Location</label>
+            <input type="text" id="schedule-location" placeholder="e.g. Heathrow Terminal 5">
+          </div>
+          <div class="form-group">
+            <label for="schedule-route">Routes Touring</label>
+            <textarea id="schedule-route" rows="2" placeholder="e.g. Heathrow > Westminster > London Eye > Hotel"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="schedule-notes">Trip Notes</label>
+            <textarea id="schedule-notes" rows="2" placeholder="Calendar note, flight details, reminders"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Create Manager Task</button>
+        </form>
+
+        <h3>Manager Task Queue</h3>
+        <ul id="schedule-list" class="item-list"></ul>
+      </section>
+
+      <!-- GPS Tracking -->
+      <section class="card">
+        <h2>GPS Realtime Tracking</h2>
+        <div class="split-row">
+          <div class="form-group">
+            <label for="gps-tablet-select">Tracked Tablet ID</label>
+            <select id="gps-tablet-select"></select>
+          </div>
+          <div class="form-group">
+            <label for="gps-monitor-email">Tracking Alert Email</label>
+            <input type="email" id="gps-monitor-email" readonly>
+          </div>
+        </div>
+        <div id="gps-device-summary" class="muted" style="margin-bottom: 10px;">No tablet selected for tracking.</div>
+        <div class="inline-actions" style="margin-bottom: 12px;">
+          <button type="button" class="btn-primary" onclick="startGpsTracking()" style="width: auto;">Start Tracking</button>
+          <button type="button" class="btn-secondary" onclick="stopGpsTracking()">Stop</button>
+          <button type="button" class="btn-primary" onclick="startRouteTrip()" style="width: auto;">Start Trip Log</button>
+          <button type="button" class="btn-secondary" onclick="endRouteTrip()">End Trip Log</button>
+        </div>
+        <div id="route-trip-status" class="muted" style="margin-bottom: 10px;">No active trip log.</div>
+        <div class="gps-readout">
+          <div class="gps-stat">
+            <span class="muted">Latitude</span>
+            <strong id="gps-lat">--</strong>
+          </div>
+          <div class="gps-stat">
+            <span class="muted">Longitude</span>
+            <strong id="gps-lng">--</strong>
+          </div>
+          <div class="gps-stat">
+            <span class="muted">Accuracy</span>
+            <strong id="gps-accuracy">--</strong>
+          </div>
+        </div>
+        <div style="margin-top: 12px;">
+          <span id="gps-status" class="status-pill idle">Tracking idle</span>
+          <div id="gps-updated" class="muted" style="margin-top: 8px;">No live position yet.</div>
+        </div>
+        <iframe id="gps-map-frame" class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=51.5072,-0.1276&z=11&output=embed" title="Google Maps live GPS view"></iframe>
+        <ul id="gps-history" class="item-list" style="margin-top: 12px;"></ul>
+        <h3>Device Telemetry Logs</h3>
+        <ul id="gps-device-log" class="item-list"></ul>
+        <h3>Route Trip History</h3>
+        <ul id="route-trip-log" class="item-list"></ul>
+      </section>
+
+      <!-- Messaging -->
+      <section class="card">
+        <h2>Message Module</h2>
+        <form id="message-form" class="stack-gap">
+          <div class="split-row">
+            <div class="form-group">
+              <label for="message-recipient-type">Recipient Type</label>
+              <select id="message-recipient-type">
+                <option value="driver">Driver</option>
+                <option value="client">Client</option>
+                <option value="all">All Drivers & Clients</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="message-recipient">Recipient</label>
+              <select id="message-recipient"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="message-body">Message</label>
+            <textarea id="message-body" class="message-preview" rows="3" placeholder="Send dispatch instructions, trip updates, or reminders"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Send Message</button>
+        </form>
+
+        <h3>Sent Messages</h3>
+        <ul id="message-list" class="item-list"></ul>
+
+        <h3>Driver Voice / Text Updates</h3>
+        <ul id="manager-driver-updates" class="item-list"></ul>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MANAGER PIN OVERLAY -->
+  <div id="manager-pin-overlay">
+    <div class="pin-card">
+      <div class="pin-title">Manager Authorisation</div>
+      <div class="muted" style="text-align:center;">Enter the manager PIN to delete this record.</div>
+      <div class="pin-error" id="pin-error">Incorrect PIN. Access denied.</div>
+      <div class="form-group">
+        <label for="manager-pin-input">Manager PIN</label>
+        <input type="password" id="manager-pin-input" placeholder="Enter PIN" autocomplete="off" maxlength="10">
+      </div>
+      <button id="pin-confirm-btn" class="btn-primary" type="button" style="margin-top:0;">Confirm Delete</button>
+      <button id="pin-cancel-btn" class="btn-secondary" type="button" style="margin-top:0; width:100%;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- DRIVER SIGN-IN OVERLAY -->
+  <div id="driver-signin-overlay">
+    <div class="signin-card">
+      <div class="signin-title">Driver Sign In</div>
+      <div class="signin-subtitle">Select your name and confirm to access your tablet.</div>
+      <div class="signin-error" id="signin-error">Please select a registered driver before signing in.</div>
+      <div class="form-group">
+        <label for="signin-driver-select">Select Driver</label>
+        <select id="signin-driver-select"><option value="">-- Select your name --</option></select>
+      </div>
+      <div id="signed-in-driver-display" style="display:none;" class="muted" style="text-align:center;"></div>
+      <button id="signin-confirm-btn" class="btn-primary" type="button" style="margin-top:0;">Sign In to Tablet</button>
+      <button id="signin-cancel-btn" class="btn-secondary" type="button" style="margin-top:0; width:100%;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- DRIVER TABLET INTERFACE VIEW -->
+  <main id="driver-view" class="view-panel">
+    <div class="driver-status-bar">
+      <div>
+        <div class="driver-status-title">Driver Tablet Mode</div>
+        <div id="driver-signed-in-label" class="driver-status-meta">Touch optimized layout for iPad and SIM-enabled fleet tablets</div>
+      </div>
+      <div class="inline-actions">
+        <span class="status-pill live">Realtime Ready</span>
+        <button id="kiosk-exit-btn" type="button" class="kiosk-btn danger">Exit Kiosk</button>
+      </div>
+    </div>
+    <div class="tablet-grid">
+      <section class="card">
+        <h2>Assigned Tasks & Tours</h2>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Tasks created in the manager dashboard appear here for the driver tablet.</p>
+        <ul id="tablet-pickup-list" class="item-list"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Vehicle Status Report</h2>
+        <form id="vehicle-report-form" class="stack-gap">
+          <div class="split-row">
+            <div class="form-group">
+              <label for="vehicle-trip">Trip / Tour</label>
+              <select id="vehicle-trip"></select>
+            </div>
+            <div class="form-group">
+              <label for="vehicle-phase">Report Phase</label>
+              <select id="vehicle-phase">
+                <option value="Before Trip">Before Trip</option>
+                <option value="After Trip">After Trip</option>
+              </select>
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="vehicle-odometer">Odometer</label>
+              <input type="number" id="vehicle-odometer" min="0" placeholder="e.g. 18450">
+            </div>
+            <div class="form-group">
+              <label for="vehicle-fuel">Fuel Level</label>
+              <select id="vehicle-fuel">
+                <option value="Full">Full</option>
+                <option value="3/4">3/4</option>
+                <option value="1/2">1/2</option>
+                <option value="1/4">1/4</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="split-row">
+            <div class="form-group">
+              <label for="vehicle-cleanliness">Cleanliness</label>
+              <select id="vehicle-cleanliness">
+                <option value="Clean">Clean</option>
+                <option value="Needs Wash">Needs Wash</option>
+                <option value="Needs Deep Clean">Needs Deep Clean</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="vehicle-ready">Vehicle Ready</label>
+              <select id="vehicle-ready">
+                <option value="Ready">Ready</option>
+                <option value="Needs Attention">Needs Attention</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="vehicle-notes">Damage / Driver Notes</label>
+            <textarea id="vehicle-notes" rows="3" placeholder="Record scratches, fuel issues, client baggage notes, or anything relevant"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Submit Status Report</button>
+        </form>
+
+        <h3>Latest Reports</h3>
+        <ul id="vehicle-report-list" class="item-list"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Driver Message Window</h2>
+        <p class="muted">Manager messages and broadcast task updates appear here.</p>
+
+        <form id="driver-voice-form" class="stack-gap" style="margin: 12px 0 10px;">
+          <div class="form-group">
+            <label for="driver-outbound-message">Handsfree Message To Manager</label>
+            <textarea id="driver-outbound-message" rows="3" placeholder="Tap Start Voice, speak your update, then send to manager"></textarea>
+          </div>
+          <div class="inline-actions">
+            <button type="button" id="voice-start-btn" class="btn-primary" style="width: auto; margin-top: 0;">Start Voice</button>
+            <button type="button" id="voice-stop-btn" class="btn-secondary">Stop Voice</button>
+            <button type="button" id="voice-read-latest-btn" class="btn-secondary">Read Latest Manager Message</button>
+            <button type="submit" class="btn-primary" style="width: auto; margin-top: 0;">Send To Manager</button>
+          </div>
+          <div id="voice-status" class="muted">Voice assistant idle.</div>
+          <div class="muted">Use only when legal and safe, with handsfree mount and audio route.</div>
+        </form>
+
+        <ul id="driver-message-list" class="item-list"></ul>
+      </section>
+    </div>
+  </main>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN TABLET PICKUP SIGN -->
+  <div id="fullscreen-sign" onclick="hideFullscreenSign()">
+    <div id="sign-vip-tag" class="vip-banner" style="display: none;">★ VIP CLIENT ★</div>
+    <div id="sign-client-name" class="client-name-display">CLIENT NAME</div>
+    <div id="sign-prefs-display" style="font-size: 1.2rem; color: #cbd5e1; margin-bottom: 20px;"></div>
+    <div class="close-hint">Tap anywhere on the screen to close sign</div>
+  </div>
+
+  <script>
+    // In-memory data store
+    // ── Persistent store (localStorage) ─────────────────────────────────────
+    const STORE_KEYS = {
+      drivers: 'fleet_drivers',
+      vehicles: 'fleet_vehicles',
+      tablets: 'fleet_tablets',
+      clients: 'fleet_clients',
+      schedules: 'fleet_schedules',
+      opsConfig: 'fleet_opsConfig',
+      managerPin: 'fleet_manager_pin',
+      routeTrips: 'fleet_route_trips'
+    };
+
+    const DEFAULT_MANAGER_PIN = '1234';
+
+    function loadStore(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch(e) { return fallback; }
+    }
+
+    function saveStore(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
+    }
+
+    const drivers   = loadStore(STORE_KEYS.drivers, []);
+    const vehicles  = loadStore(STORE_KEYS.vehicles, []);
+    const tablets   = loadStore(STORE_KEYS.tablets, []);
+    const schedules = loadStore(STORE_KEYS.schedules, []);
+    const messages  = [];
+    const driverOutboundMessages = [];
+    const vehicleReports = [];
+    const gpsDeviceLogs  = [];
+    const opsConfig = loadStore(STORE_KEYS.opsConfig, { email: '' });
+    const routeTrips = loadStore(STORE_KEYS.routeTrips, []);
+    const clients   = loadStore(STORE_KEYS.clients, [
+      { id: 1, name: 'Robert Vance', status: 'VIP',    prefs: 'Prefers front seat, flight BA123' },
+      { id: 2, name: 'Alice Smith',  status: 'NORMAL', prefs: 'Standard pickup' }
+    ]);
+
+    let gpsWatchId = null;
+    let speechRecognition = null;
+    let isVoiceListening = false;
+    const gpsTrail = [];
+    let activeRouteTrip = null;
+
+    // ── Manager PIN ──────────────────────────────────────────────────────────
+    let _pinCallback = null;
+
+    function requireManagerPin(onSuccess) {
+      _pinCallback = onSuccess;
+      const overlay = document.getElementById('manager-pin-overlay');
+      const error = document.getElementById('pin-error');
+      const input = document.getElementById('manager-pin-input');
+      error.classList.remove('visible');
+      input.value = '';
+      overlay.classList.add('visible');
+      setTimeout(() => input.focus(), 80);
+    }
+
+    document.getElementById('pin-confirm-btn').addEventListener('click', function() {
+      const storedPin = loadStore(STORE_KEYS.managerPin, DEFAULT_MANAGER_PIN);
+      const entered = document.getElementById('manager-pin-input').value;
+      if (entered === storedPin) {
+        document.getElementById('manager-pin-overlay').classList.remove('visible');
+        if (_pinCallback) { _pinCallback(); _pinCallback = null; }
+      } else {
+        document.getElementById('pin-error').classList.add('visible');
+      }
+    });
+
+    document.getElementById('manager-pin-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('pin-confirm-btn').click();
+    });
+
+    document.getElementById('pin-cancel-btn').addEventListener('click', function() {
+      document.getElementById('manager-pin-overlay').classList.remove('visible');
+      _pinCallback = null;
+    });
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDateTime(dateValue, timeValue) {
+      return new Date(`${dateValue}T${timeValue}`).toLocaleString([], {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+    }
+
+    function buildGoogleMapUrl(query) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=13&output=embed`;
+    }
+
+    function updateGoogleMapView(query) {
+      document.getElementById('gps-map-frame').src = buildGoogleMapUrl(query);
+    }
+
+    function getTaskLabel(schedule) {
+      return `${schedule.type} - ${schedule.clientName} (${schedule.date})`;
+    }
+
+    function getVehicleLabel(vehicle) {
+      return `${vehicle.plate} - ${vehicle.name}`;
+    }
+
+    function getTabletLabel(tablet) {
+      return `${tablet.tabletId} (${tablet.simPhone})`;
+    }
+
+    function getActiveTabletLabel() {
+      const gpsTabletId = document.getElementById('gps-tablet-select')?.value;
+      const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
+      return selectedTablet ? selectedTablet.tabletId : 'UNKNOWN-TABLET';
+    }
+
+    function getDistanceKm(lat1, lng1, lat2, lng2) {
+      const toRad = deg => deg * (Math.PI / 180);
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function formatDurationMs(durationMs) {
+      const totalMinutes = Math.max(0, Math.round(durationMs / 60000));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      if (!hours) return `${minutes} min`;
+      return `${hours}h ${minutes}m`;
+    }
+
+    function updateRouteTripStatus() {
+      const el = document.getElementById('route-trip-status');
+      if (!el) return;
+      if (!activeRouteTrip) {
+        el.textContent = 'No active trip log.';
+        return;
+      }
+      el.textContent = `Trip log active: ${activeRouteTrip.tabletCode} | ${activeRouteTrip.vehicleName} | Started ${activeRouteTrip.startTime}`;
+    }
+
+    function renderRouteTripLogs() {
+      const list = document.getElementById('route-trip-log');
+      if (!list) return;
+      list.innerHTML = routeTrips.length ? routeTrips.slice(0, 12).map(trip => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(trip.vehicleName)}</strong>
+              <div class="muted">Tablet: <span class="mono">${escapeHtml(trip.tabletCode)}</span> | SIM ${escapeHtml(trip.simPhone)}</div>
+              <div class="muted">Start: ${escapeHtml(trip.startLat)}, ${escapeHtml(trip.startLng)} (${escapeHtml(trip.startTime)})</div>
+              <div class="muted">End: ${escapeHtml(trip.endLat)}, ${escapeHtml(trip.endLng)} (${escapeHtml(trip.endTime)})</div>
+              <div class="muted">Distance: ${escapeHtml(trip.distanceKm)} km | Duration: ${escapeHtml(trip.duration)}</div>
+            </div>
+            <span class="badge badge-success">Completed</span>
+          </div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No completed route trips yet.</strong><br><small class="muted">Use Start Trip Log and End Trip Log during tracking.</small></div></li>';
+    }
+
+    function startRouteTrip() {
+      if (activeRouteTrip) {
+        updateGpsStatus('Trip already active', 'live');
+        return;
+      }
+
+      const gpsTabletId = document.getElementById('gps-tablet-select')?.value;
+      const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
+      const selectedVehicle = vehicles.find(vehicle => vehicle.id === selectedTablet?.vehicleId);
+      const latText = document.getElementById('gps-lat')?.textContent;
+      const lngText = document.getElementById('gps-lng')?.textContent;
+      const lat = Number(latText);
+      const lng = Number(lngText);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        updateGpsStatus('Get a GPS fix first', 'idle');
+        document.getElementById('gps-updated').textContent = 'Start tracking and wait for a live GPS sample before starting trip log.';
+        return;
+      }
+
+      activeRouteTrip = {
+        id: Date.now(),
+        tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
+        simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
+        vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
+        startLat: lat.toFixed(6),
+        startLng: lng.toFixed(6),
+        startTs: Date.now(),
+        startTime: new Date().toLocaleString()
+      };
+
+      updateRouteTripStatus();
+      updateGpsStatus('Trip log started', 'live');
+    }
+
+    function endRouteTrip() {
+      if (!activeRouteTrip) {
+        updateGpsStatus('No active trip log', 'idle');
+        return;
+      }
+
+      const latText = document.getElementById('gps-lat')?.textContent;
+      const lngText = document.getElementById('gps-lng')?.textContent;
+      const endLat = Number(latText);
+      const endLng = Number(lngText);
+
+      if (!Number.isFinite(endLat) || !Number.isFinite(endLng)) {
+        updateGpsStatus('GPS sample missing', 'idle');
+        document.getElementById('gps-updated').textContent = 'Unable to close trip log without a valid GPS location.';
+        return;
+      }
+
+      const endTs = Date.now();
+      const distanceKm = getDistanceKm(
+        Number(activeRouteTrip.startLat),
+        Number(activeRouteTrip.startLng),
+        endLat,
+        endLng
+      );
+
+      routeTrips.unshift({
+        id: activeRouteTrip.id,
+        tabletCode: activeRouteTrip.tabletCode,
+        simPhone: activeRouteTrip.simPhone,
+        vehicleName: activeRouteTrip.vehicleName,
+        startLat: activeRouteTrip.startLat,
+        startLng: activeRouteTrip.startLng,
+        startTime: activeRouteTrip.startTime,
+        endLat: endLat.toFixed(6),
+        endLng: endLng.toFixed(6),
+        endTime: new Date(endTs).toLocaleString(),
+        distanceKm: distanceKm.toFixed(2),
+        duration: formatDurationMs(endTs - activeRouteTrip.startTs)
+      });
+
+      saveStore(STORE_KEYS.routeTrips, routeTrips);
+      activeRouteTrip = null;
+      updateRouteTripStatus();
+      renderRouteTripLogs();
+      updateGpsStatus('Trip log saved', 'live');
+    }
+
+    function setVoiceStatus(text) {
+      const status = document.getElementById('voice-status');
+      if (status) status.textContent = text;
+    }
+
+    function supportsVoiceRecognition() {
+      return Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+    }
+
+    function getAllContacts() {
+      return [
+        ...drivers.map(driver => ({ id: `driver-${driver.name}`, name: driver.name, type: 'Driver' })),
+        ...clients.map(client => ({ id: `client-${client.id}`, name: client.name, type: 'Client' }))
+      ];
+    }
+
+    function populateContactSelects() {
+      const clientSelect = document.getElementById('schedule-client');
+      const driverSelect = document.getElementById('schedule-driver');
+      const scheduleVehicleSelect = document.getElementById('schedule-vehicle');
+      const scheduleTabletSelect = document.getElementById('schedule-tablet');
+      const tabletVehicleSelect = document.getElementById('tablet-vehicle');
+      const gpsTabletSelect = document.getElementById('gps-tablet-select');
+      const gpsMonitorEmail = document.getElementById('gps-monitor-email');
+      const recipientSelect = document.getElementById('message-recipient');
+      const vehicleTripSelect = document.getElementById('vehicle-trip');
+      const recipientType = document.getElementById('message-recipient-type').value;
+      const contacts = getAllContacts();
+
+      const previousScheduleVehicle = scheduleVehicleSelect.value;
+      const previousScheduleTablet = scheduleTabletSelect.value;
+      const previousTabletVehicle = tabletVehicleSelect.value;
+      const previousGpsTablet = gpsTabletSelect.value;
+
+      clientSelect.innerHTML = clients.map(client => `<option value="${client.id}">${escapeHtml(client.name)}</option>`).join('') || '<option value="">No clients</option>';
+      driverSelect.innerHTML = drivers.map(driver => `<option value="${escapeHtml(driver.name)}">${escapeHtml(driver.name)}</option>`).join('') || '<option value="">No drivers</option>';
+      scheduleVehicleSelect.innerHTML = vehicles.length
+        ? vehicles.map(vehicle => `<option value="${vehicle.id}">${escapeHtml(getVehicleLabel(vehicle))}</option>`).join('')
+        : '<option value="">No vehicles</option>';
+      scheduleTabletSelect.innerHTML = tablets.length
+        ? tablets.map(tablet => `<option value="${tablet.id}">${escapeHtml(getTabletLabel(tablet))}</option>`).join('')
+        : '<option value="">No tablets</option>';
+      tabletVehicleSelect.innerHTML = vehicles.length
+        ? vehicles.map(vehicle => `<option value="${vehicle.id}">${escapeHtml(getVehicleLabel(vehicle))}</option>`).join('')
+        : '<option value="">No vehicles</option>';
+      gpsTabletSelect.innerHTML = tablets.length
+        ? tablets.map(tablet => `<option value="${tablet.id}">${escapeHtml(getTabletLabel(tablet))}</option>`).join('')
+        : '<option value="">No tablets</option>';
+
+      if (previousScheduleVehicle && scheduleVehicleSelect.querySelector(`option[value="${previousScheduleVehicle}"]`)) {
+        scheduleVehicleSelect.value = previousScheduleVehicle;
+      }
+      if (previousScheduleTablet && scheduleTabletSelect.querySelector(`option[value="${previousScheduleTablet}"]`)) {
+        scheduleTabletSelect.value = previousScheduleTablet;
+      }
+      if (previousTabletVehicle && tabletVehicleSelect.querySelector(`option[value="${previousTabletVehicle}"]`)) {
+        tabletVehicleSelect.value = previousTabletVehicle;
+      }
+      if (previousGpsTablet && gpsTabletSelect.querySelector(`option[value="${previousGpsTablet}"]`)) {
+        gpsTabletSelect.value = previousGpsTablet;
+      }
+
+      gpsMonitorEmail.value = opsConfig.email || '';
+
+      const filteredContacts = recipientType === 'all'
+        ? [{ id: 'all', name: 'All Drivers & Clients', type: 'Broadcast' }, ...contacts]
+        : contacts.filter(contact => contact.type.toLowerCase() === recipientType);
+
+      recipientSelect.innerHTML = filteredContacts.length
+        ? filteredContacts.map(contact => `<option value="${escapeHtml(contact.id)}">${escapeHtml(contact.name)} (${contact.type})</option>`).join('')
+        : '<option value="">No recipients available</option>';
+
+      vehicleTripSelect.innerHTML = schedules.length
+        ? schedules.map(schedule => `<option value="${schedule.id}">${escapeHtml(getTaskLabel(schedule))}</option>`).join('')
+        : '<option value="">No trips or tours</option>';
+
+      updateGpsDeviceSummary();
+    }
+
+    function updateGpsDeviceSummary() {
+      const gpsTabletSelect = document.getElementById('gps-tablet-select');
+      const summary = document.getElementById('gps-device-summary');
+      const tablet = tablets.find(item => String(item.id) === gpsTabletSelect.value);
+
+      if (!tablet) {
+        summary.textContent = 'No tablet selected for tracking.';
+        return;
+      }
+
+      const vehicle = vehicles.find(item => item.id === tablet.vehicleId);
+      summary.textContent = `Tracking ${tablet.tabletId} | SIM ${tablet.simPhone} | Vehicle ${vehicle ? getVehicleLabel(vehicle) : 'Unassigned'} | Email ${opsConfig.email || 'Not set'}`;
+    }
+
+    let signedInDriver = null;
+
+    function populateSignInSelect() {
+      const select = document.getElementById('signin-driver-select');
+      select.innerHTML = '<option value="">-- Select your name --</option>' +
+        drivers.map(d => `<option value="${escapeHtml(d.name)}">${escapeHtml(d.name)}</option>`).join('');
+    }
+
+    function showDriverSignIn(onSuccess) {
+      populateSignInSelect();
+      const overlay = document.getElementById('driver-signin-overlay');
+      const error = document.getElementById('signin-error');
+      error.classList.remove('visible');
+      overlay.classList.add('visible');
+
+      document.getElementById('signin-confirm-btn').onclick = function() {
+        const select = document.getElementById('signin-driver-select');
+        const name = select.value;
+        if (!name) {
+          error.classList.add('visible');
+          return;
+        }
+        signedInDriver = name;
+        overlay.classList.remove('visible');
+        document.getElementById('driver-signed-in-label').textContent =
+          `Signed in as: ${name} · Touch optimized for iPad & SIM tablets`;
+        if (onSuccess) onSuccess();
+      };
+
+      document.getElementById('signin-cancel-btn').onclick = function() {
+        overlay.classList.remove('visible');
+        switchView('manager-view', document.querySelectorAll('.nav-btn')[0]);
+      };
+    }
+
+    // ── Manager-PIN-guarded delete ─────────────────────────────────────────
+    const STORE_MAP = {
+      drivers:   { arr: drivers,   key: STORE_KEYS.drivers,   render: () => renderDrivers() },
+      vehicles:  { arr: vehicles,  key: STORE_KEYS.vehicles,  render: () => { renderVehicles(); populateContactSelects(); } },
+      tablets:   { arr: tablets,   key: STORE_KEYS.tablets,   render: () => { renderTablets(); populateContactSelects(); } },
+      clients:   { arr: clients,   key: STORE_KEYS.clients,   render: () => renderClients() },
+      schedules: { arr: schedules, key: STORE_KEYS.schedules, render: () => { renderSchedules(); renderDriverTabletList(); } }
+    };
+
+    function deleteRecord(type, idx) {
+      requireManagerPin(function() {
+        const store = STORE_MAP[type];
+        if (!store) return;
+        store.arr.splice(idx, 1);
+        saveStore(store.key, store.arr);
+        store.render();
+      });
+    }
+
+    // ── Initial ops-email display ─────────────────────────────────────────────
+    if (opsConfig.email) {
+      document.getElementById('ops-email-status').innerHTML =
+        `Operations email saved: <span class="mono">${escapeHtml(opsConfig.email)}</span>`;
+    }
+
+    function switchView(viewId, element) {
+      if (document.body.classList.contains('kiosk-mode') && viewId !== 'driver-view') {
+        return;
+      }
+      if (viewId === 'driver-view' && !signedInDriver) {
+        showDriverSignIn(() => {
+          document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+          document.getElementById('driver-view').classList.add('active');
+          element.classList.add('active');
+          renderDriverTabletList();
+        });
+        return;
+      }
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+      element.classList.add('active');
+      if (viewId === 'driver-view') renderDriverTabletList();
+    }
+
+    // Register Driver & License
+    document.getElementById('driver-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('driver-name').value.trim();
+      const mobile = document.getElementById('driver-mobile').value.trim();
+      const licenseInput = document.getElementById('driver-license');
+      const file = licenseInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          drivers.push({ name, mobile, licenseUrl: evt.target.result });
+          saveStore(STORE_KEYS.drivers, drivers);
+          renderDrivers();
+          document.getElementById('driver-form').reset();
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function renderDrivers() {
+      const list = document.getElementById('driver-list');
+      list.innerHTML = drivers.map((d, idx) => `
+        <li class="item-card">
+          <div>
+            <strong>${escapeHtml(d.name)}</strong><br>
+            <small style="color: #64748b;">Mobile: <span class="mono">${escapeHtml(d.mobile || 'Not set')}</span></small><br>
+            <small style="color: #64748b;">License Uploaded</small>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <img src="${d.licenseUrl}" alt="License Preview" class="license-preview">
+            <button class="btn-danger" onclick="deleteRecord('drivers',${idx})">Remove</button>
+          </div>
+        </li>
+      `).join('') || '<li class="item-card"><div><strong>No drivers registered yet.</strong></div></li>';
+      populateContactSelects();
+      populateSignInSelect();
+    }
+
+    // Client Preferences Form
+    document.getElementById('client-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('client-name').value;
+      const status = document.getElementById('client-status').value;
+      const prefs = document.getElementById('client-prefs').value;
+
+      clients.push({ id: Date.now(), name, status, prefs });
+      saveStore(STORE_KEYS.clients, clients);
+      renderClients();
+      document.getElementById('client-form').reset();
+    });
+
+    function renderClients() {
+      const list = document.getElementById('client-list');
+      list.innerHTML = clients.map((c, idx) => `
+        <li class="item-card">
+          <div>
+            <strong>${escapeHtml(c.name)}</strong> 
+            <span class="badge ${c.status === 'VIP' ? 'badge-vip' : 'badge-normal'}">${c.status}</span><br>
+            <small style="color: #64748b;">Notes: ${escapeHtml(c.prefs || 'None')}</small>
+          </div>
+          <button class="btn-danger" onclick="deleteRecord('clients',${idx})">Remove</button>
+        </li>
+      `).join('') || '<li class="item-card"><div><strong>No clients saved yet.</strong></div></li>';
+      populateContactSelects();
+    }
+
+    document.getElementById('message-recipient-type').addEventListener('change', populateContactSelects);
+    document.getElementById('gps-tablet-select').addEventListener('change', updateGpsDeviceSummary);
+
+    document.getElementById('ops-config-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const email = document.getElementById('ops-email').value.trim();
+      opsConfig.email = email;
+      saveStore(STORE_KEYS.opsConfig, opsConfig);
+      document.getElementById('ops-email-status').innerHTML = `Operations email saved: <span class="mono">${escapeHtml(email)}</span>`;
+      populateContactSelects();
+      document.getElementById('ops-config-form').reset();
+      document.getElementById('ops-email').value = opsConfig.email;
+    });
+
+    document.getElementById('vehicle-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('vehicle-name').value.trim();
+      const plate = document.getElementById('vehicle-plate').value.trim().toUpperCase();
+      const capacity = document.getElementById('vehicle-capacity-size').value;
+
+      vehicles.unshift({
+        id: Date.now().toString(),
+        name,
+        plate,
+        capacity
+      });
+
+      saveStore(STORE_KEYS.vehicles, vehicles);
+      renderVehicles();
+      populateContactSelects();
+      document.getElementById('vehicle-form').reset();
+    });
+
+    document.getElementById('tablet-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const tabletId = document.getElementById('tablet-id').value.trim().toUpperCase();
+      const simPhone = document.getElementById('tablet-sim-phone').value.trim();
+      const email = document.getElementById('tablet-email').value.trim();
+      const vehicleId = document.getElementById('tablet-vehicle').value;
+
+      tablets.unshift({
+        id: Date.now().toString(),
+        tabletId,
+        simPhone,
+        email,
+        vehicleId
+      });
+
+      saveStore(STORE_KEYS.tablets, tablets);
+      renderTablets();
+      populateContactSelects();
+      document.getElementById('tablet-form').reset();
+    });
+
+    function renderVehicles() {
+      const list = document.getElementById('vehicle-list');
+      list.innerHTML = vehicles.length ? vehicles.map((vehicle, idx) => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(vehicle.name)}</strong>
+              <div class="muted">Plate: <span class="mono">${escapeHtml(vehicle.plate)}</span></div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <span class="badge badge-info">Capacity ${escapeHtml(vehicle.capacity)}</span>
+              <button class="btn-danger" onclick="deleteRecord('vehicles',${idx})">Remove</button>
+            </div>
+          </div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No vehicles registered yet.</strong><br><small class="muted">Add fleet vehicles to assign tablets and tasks.</small></div></li>';
+    }
+
+    function renderTablets() {
+      const list = document.getElementById('tablet-list');
+      list.innerHTML = tablets.length ? tablets.map((tablet, idx) => {
+        const linkedVehicle = vehicles.find(vehicle => vehicle.id === tablet.vehicleId);
+        return `
+          <li class="item-card stack">
+            <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
+              <div>
+                <strong>${escapeHtml(tablet.tabletId)}</strong>
+                <div class="muted">SIM: <span class="mono">${escapeHtml(tablet.simPhone)}</span></div>
+                <div class="muted">Vehicle: ${escapeHtml(linkedVehicle ? getVehicleLabel(linkedVehicle) : 'Unassigned')}</div>
+                <div class="muted">Email: ${escapeHtml(tablet.email || opsConfig.email || 'Not set')}</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <span class="badge badge-success">Active</span>
+                <button class="btn-danger" onclick="deleteRecord('tablets',${idx})">Remove</button>
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('') : '<li class="item-card"><div><strong>No tablet units registered yet.</strong><br><small class="muted">Register tablet ID and SIM phone for tracking logs.</small></div></li>';
+    }
+
+    document.getElementById('schedule-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const type = document.getElementById('schedule-type').value;
+      const clientId = document.getElementById('schedule-client').value;
+      const driverName = document.getElementById('schedule-driver').value;
+      const vehicleId = document.getElementById('schedule-vehicle').value;
+      const tabletId = document.getElementById('schedule-tablet').value;
+      const date = document.getElementById('schedule-date').value;
+      const capacity = document.getElementById('schedule-capacity').value;
+      const pickupTime = document.getElementById('schedule-pickup-time').value;
+      const deliveryTime = document.getElementById('schedule-delivery-time').value;
+      const location = document.getElementById('schedule-location').value;
+      const route = document.getElementById('schedule-route').value;
+      const notes = document.getElementById('schedule-notes').value;
+      const selectedClient = clients.find(client => String(client.id) === clientId);
+      const selectedVehicle = vehicles.find(vehicle => vehicle.id === vehicleId);
+      const selectedTablet = tablets.find(tablet => tablet.id === tabletId);
+
+      schedules.unshift({
+        id: Date.now(),
+        type,
+        clientName: selectedClient ? selectedClient.name : 'Unknown client',
+        driverName,
+        vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
+        tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unassigned tablet',
+        simPhone: selectedTablet ? selectedTablet.simPhone : 'Not assigned',
+        date,
+        capacity,
+        pickupTime,
+        deliveryTime,
+        location,
+        route,
+        notes
+      });
+
+      saveStore(STORE_KEYS.schedules, schedules);
+      renderSchedules();
+      document.getElementById('schedule-form').reset();
+      populateContactSelects();
+      renderDriverTabletList();
+    });
+
+    function renderSchedules() {
+      const list = document.getElementById('schedule-list');
+      list.innerHTML = schedules.length ? schedules.map((schedule, idx) => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(schedule.clientName)}</strong>
+              <div class="muted">Type: ${escapeHtml(schedule.type)}</div>
+              <div class="muted">Driver: ${escapeHtml(schedule.driverName || 'Unassigned')}</div>
+              <div class="muted">Vehicle: ${escapeHtml(schedule.vehicleName || 'Unassigned')}</div>
+              <div class="muted">Tablet: <span class="mono">${escapeHtml(schedule.tabletCode || 'Unassigned')}</span> | SIM ${escapeHtml(schedule.simPhone || 'N/A')}</div>
+              <div class="muted">Pickup: ${escapeHtml(formatDateTime(schedule.date, schedule.pickupTime))}</div>
+              <div class="muted">Delivery: ${escapeHtml(formatDateTime(schedule.date, schedule.deliveryTime))}</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+              <span class="badge badge-info">Task Sent</span>
+              <button class="btn-danger" onclick="deleteRecord('schedules',${idx})">Remove</button>
+            </div>
+          </div>
+          <div class="muted">Capacity: ${escapeHtml(schedule.capacity || 'Not set')}</div>
+          <div class="muted">Location: ${escapeHtml(schedule.location || 'Not set')}</div>
+          <div class="muted">Route: ${escapeHtml(schedule.route || 'Not set')}</div>
+          <div class="muted">Notes: ${escapeHtml(schedule.notes || 'None')}</div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No trips or tours scheduled yet.</strong><br><small class="muted">Use the form above to send tasks to the driver tablet.</small></div></li>';
+    }
+
+    document.getElementById('message-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const recipientType = document.getElementById('message-recipient-type').value;
+      const recipientSelect = document.getElementById('message-recipient');
+      const body = document.getElementById('message-body').value.trim();
+
+      if (!body) return;
+
+      messages.unshift({
+        id: Date.now(),
+        recipientType,
+        recipient: recipientSelect.options[recipientSelect.selectedIndex]?.text || 'Unknown recipient',
+        body,
+        time: new Date().toLocaleString()
+      });
+
+      renderMessages();
+      renderDriverMessages();
+      document.getElementById('message-form').reset();
+      populateContactSelects();
+    });
+
+    document.getElementById('driver-voice-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const body = document.getElementById('driver-outbound-message').value.trim();
+      if (!body) {
+        setVoiceStatus('Capture or type a message before sending.');
+        return;
+      }
+
+      const tabletLabel = getActiveTabletLabel();
+      const driverLabel = signedInDriver ? signedInDriver : `Driver (${tabletLabel})`;
+      driverOutboundMessages.unshift({
+        id: Date.now(),
+        source: driverLabel,
+        body,
+        time: new Date().toLocaleString()
+      });
+
+      document.getElementById('driver-outbound-message').value = '';
+      stopVoiceInput();
+      renderManagerDriverUpdates();
+      setVoiceStatus('Message sent to manager.');
+    });
+
+    document.getElementById('voice-start-btn').addEventListener('click', startVoiceInput);
+    document.getElementById('voice-stop-btn').addEventListener('click', stopVoiceInput);
+    document.getElementById('voice-read-latest-btn').addEventListener('click', speakLatestManagerMessage);
+
+    function renderMessages() {
+      const list = document.getElementById('message-list');
+      list.innerHTML = messages.length ? messages.map(message => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(message.recipient)}</strong>
+              <div class="muted">${escapeHtml(message.time)}</div>
+            </div>
+            <span class="badge badge-success">${escapeHtml(message.recipientType)}</span>
+          </div>
+          <div>${escapeHtml(message.body)}</div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No messages sent yet.</strong><br><small class="muted">Dispatch updates appear here after sending.</small></div></li>';
+    }
+
+    function renderDriverMessages() {
+      const list = document.getElementById('driver-message-list');
+      const driverMessages = messages.filter(message => message.recipientType === 'driver' || message.recipientType === 'all');
+      list.innerHTML = driverMessages.length ? driverMessages.map(message => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(message.recipient)}</strong>
+              <div class="muted">${escapeHtml(message.time)}</div>
+            </div>
+            <span class="badge badge-warning">Manager</span>
+          </div>
+          <div>${escapeHtml(message.body)}</div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No driver messages yet.</strong><br><small class="muted">Driver and broadcast messages sent from the dashboard will appear here.</small></div></li>';
+    }
+
+    function renderManagerDriverUpdates() {
+      const list = document.getElementById('manager-driver-updates');
+      list.innerHTML = driverOutboundMessages.length ? driverOutboundMessages.map(entry => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(entry.source)}</strong>
+              <div class="muted">${escapeHtml(entry.time)}</div>
+            </div>
+            <span class="badge badge-info">To Manager</span>
+          </div>
+          <div>${escapeHtml(entry.body)}</div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No driver updates yet.</strong><br><small class="muted">Voice and typed driver updates will appear here.</small></div></li>';
+    }
+
+    function initializeVoiceAssistant() {
+      if (!supportsVoiceRecognition()) {
+        setVoiceStatus('Voice recognition is not supported on this browser/device.');
+        const startBtn = document.getElementById('voice-start-btn');
+        if (startBtn) startBtn.disabled = true;
+        return;
+      }
+
+      const RecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      speechRecognition = new RecognitionClass();
+      speechRecognition.lang = 'en-US';
+      speechRecognition.interimResults = true;
+      speechRecognition.continuous = true;
+
+      speechRecognition.onstart = function() {
+        isVoiceListening = true;
+        setVoiceStatus('Listening... speak your update clearly.');
+      };
+
+      speechRecognition.onresult = function(event) {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join(' ')
+          .trim();
+
+        document.getElementById('driver-outbound-message').value = transcript;
+      };
+
+      speechRecognition.onerror = function(event) {
+        setVoiceStatus(`Voice error: ${event.error}`);
+      };
+
+      speechRecognition.onend = function() {
+        isVoiceListening = false;
+        setVoiceStatus('Voice assistant idle.');
+      };
+    }
+
+    function startVoiceInput() {
+      if (!speechRecognition) {
+        initializeVoiceAssistant();
+      }
+      if (!speechRecognition || isVoiceListening) return;
+
+      speechRecognition.start();
+    }
+
+    function stopVoiceInput() {
+      if (!speechRecognition || !isVoiceListening) {
+        setVoiceStatus('Voice assistant idle.');
+        return;
+      }
+
+      speechRecognition.stop();
+    }
+
+    function speakLatestManagerMessage() {
+      const latest = messages.find(message => message.recipientType === 'driver' || message.recipientType === 'all');
+      if (!latest) {
+        setVoiceStatus('No manager message available to read.');
+        return;
+      }
+
+      if (!window.speechSynthesis) {
+        setVoiceStatus('Speech output is not supported on this browser/device.');
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(latest.body);
+      utterance.lang = 'en-US';
+      utterance.rate = 1;
+      window.speechSynthesis.speak(utterance);
+      setVoiceStatus('Reading latest manager message...');
+    }
+
+    function updateGpsStatus(text, stateClass) {
+      const status = document.getElementById('gps-status');
+      status.textContent = text;
+      status.className = `status-pill ${stateClass}`;
+    }
+
+    function renderGpsHistory() {
+      const list = document.getElementById('gps-history');
+      list.innerHTML = gpsTrail.length ? gpsTrail.slice(0, 5).map(entry => `
+        <li class="item-card">
+          <div>
+            <strong>${escapeHtml(entry.lat)}, ${escapeHtml(entry.lng)}</strong><br>
+            <small class="muted">${escapeHtml(entry.time)}</small>
+          </div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No GPS samples yet.</strong><br><small class="muted">Start tracking to capture live positions.</small></div></li>';
+    }
+
+    function renderGpsDeviceLogs() {
+      const list = document.getElementById('gps-device-log');
+      list.innerHTML = gpsDeviceLogs.length ? gpsDeviceLogs.slice(0, 8).map(log => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(log.vehicleName)}</strong>
+              <div class="muted">Tablet: <span class="mono">${escapeHtml(log.tabletCode)}</span> | SIM ${escapeHtml(log.simPhone)}</div>
+              <div class="muted">Lat/Lng: ${escapeHtml(log.lat)}, ${escapeHtml(log.lng)} | Accuracy ${escapeHtml(log.accuracy)}</div>
+              <div class="muted">${escapeHtml(log.time)}</div>
+            </div>
+            <span class="badge badge-info">GPS</span>
+          </div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No telemetry logs yet.</strong><br><small class="muted">Tracking logs will include tablet ID, SIM number, and vehicle.</small></div></li>';
+    }
+
+    function startGpsTracking() {
+      if (!navigator.geolocation) {
+        updateGpsStatus('Geolocation not supported', 'idle');
+        document.getElementById('gps-updated').textContent = 'Your browser does not support live GPS tracking.';
+        return;
+      }
+
+      const gpsTabletId = document.getElementById('gps-tablet-select').value;
+      const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
+      const selectedVehicle = vehicles.find(vehicle => vehicle.id === selectedTablet?.vehicleId);
+
+      if (gpsWatchId !== null) {
+        stopGpsTracking();
+      }
+
+      updateGpsStatus('Tracking live', 'live');
+      document.getElementById('gps-updated').textContent = 'Waiting for the next position sample...';
+
+      gpsWatchId = navigator.geolocation.watchPosition(position => {
+        const { latitude, longitude, accuracy } = position.coords;
+        const timestamp = new Date(position.timestamp).toLocaleString();
+
+        document.getElementById('gps-lat').textContent = latitude.toFixed(6);
+        document.getElementById('gps-lng').textContent = longitude.toFixed(6);
+        document.getElementById('gps-accuracy').textContent = `${Math.round(accuracy)} m`;
+        document.getElementById('gps-updated').textContent = `Last update: ${timestamp}`;
+        updateGoogleMapView(`${latitude},${longitude}`);
+
+        gpsTrail.unshift({ lat: latitude.toFixed(6), lng: longitude.toFixed(6), time: timestamp });
+        gpsDeviceLogs.unshift({
+          tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
+          simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
+          vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
+          lat: latitude.toFixed(6),
+          lng: longitude.toFixed(6),
+          accuracy: `${Math.round(accuracy)} m`,
+          time: timestamp,
+          email: opsConfig.email || 'Not set'
+        });
+
+        if (activeRouteTrip) {
+          activeRouteTrip.lastLat = latitude.toFixed(6);
+          activeRouteTrip.lastLng = longitude.toFixed(6);
+          activeRouteTrip.lastTime = timestamp;
+          updateRouteTripStatus();
+        }
+
+        renderGpsHistory();
+        renderGpsDeviceLogs();
+      }, error => {
+        updateGpsStatus('GPS unavailable', 'idle');
+        document.getElementById('gps-updated').textContent = error.message;
+      }, {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000
+      });
+    }
+
+    function stopGpsTracking() {
+      if (gpsWatchId !== null && navigator.geolocation?.clearWatch) {
+        navigator.geolocation.clearWatch(gpsWatchId);
+      }
+      gpsWatchId = null;
+      updateGpsStatus('Tracking idle', 'idle');
+      document.getElementById('gps-updated').textContent = 'GPS tracking has been stopped.';
+    }
+
+    document.getElementById('vehicle-report-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const tripId = document.getElementById('vehicle-trip').value;
+      const phase = document.getElementById('vehicle-phase').value;
+      const odometer = document.getElementById('vehicle-odometer').value;
+      const fuel = document.getElementById('vehicle-fuel').value;
+      const cleanliness = document.getElementById('vehicle-cleanliness').value;
+      const ready = document.getElementById('vehicle-ready').value;
+      const notes = document.getElementById('vehicle-notes').value;
+      const selectedTrip = schedules.find(schedule => String(schedule.id) === tripId);
+
+      vehicleReports.unshift({
+        id: Date.now(),
+        tripLabel: selectedTrip ? getTaskLabel(selectedTrip) : 'Unassigned trip',
+        phase,
+        odometer,
+        fuel,
+        cleanliness,
+        ready,
+        notes,
+        time: new Date().toLocaleString()
+      });
+
+      renderVehicleReports();
+      document.getElementById('vehicle-report-form').reset();
+      populateContactSelects();
+    });
+
+    function renderVehicleReports() {
+      const list = document.getElementById('vehicle-report-list');
+      list.innerHTML = vehicleReports.length ? vehicleReports.map(report => `
+        <li class="item-card stack">
+          <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+            <div>
+              <strong>${escapeHtml(report.tripLabel)}</strong>
+              <div class="muted">${escapeHtml(report.time)}</div>
+            </div>
+            <span class="badge ${report.ready === 'Ready' ? 'badge-success' : 'badge-warning'}">${escapeHtml(report.phase)}</span>
+          </div>
+          <div class="muted">Odometer: ${escapeHtml(report.odometer || 'Not set')} | Fuel: ${escapeHtml(report.fuel)} | Cleanliness: ${escapeHtml(report.cleanliness)}</div>
+          <div class="muted">Status: ${escapeHtml(report.ready)}</div>
+          <div>${escapeHtml(report.notes || 'No notes')}</div>
+        </li>
+      `).join('') : '<li class="item-card"><div><strong>No vehicle reports yet.</strong><br><small class="muted">Drivers can submit before-trip and after-trip status here.</small></div></li>';
+    }
+
+    function previewTaskMap(scheduleId) {
+      const schedule = schedules.find(item => item.id === scheduleId);
+      if (!schedule) return;
+
+      const routeQuery = schedule.route || schedule.location || schedule.clientName;
+      updateGoogleMapView(routeQuery);
+      switchView('manager-view', document.querySelectorAll('.nav-btn')[0]);
+    }
+
+    // Driver Tablet View & Sign Launcher
+    function renderDriverTabletList() {
+      const list = document.getElementById('tablet-pickup-list');
+      list.innerHTML = schedules.length ? schedules.map(schedule => {
+        const client = clients.find(item => item.name === schedule.clientName);
+        return `
+          <li class="item-card stack" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
+              <div class="task-meta">
+                <strong style="font-size: 1.1rem;">${escapeHtml(schedule.clientName)}</strong>
+                <span class="badge ${client?.status === 'VIP' ? 'badge-vip' : 'badge-normal'}">${escapeHtml(schedule.type)}</span>
+                <small style="color: #64748b;">Driver: ${escapeHtml(schedule.driverName || 'Unassigned')}</small>
+                <small style="color: #64748b;">Vehicle: ${escapeHtml(schedule.vehicleName || 'Unassigned vehicle')}</small>
+                <small style="color: #64748b;">Tablet: ${escapeHtml(schedule.tabletCode || 'Unassigned')} | SIM ${escapeHtml(schedule.simPhone || 'N/A')}</small>
+                <small style="color: #64748b;">Pick Up: ${escapeHtml(formatDateTime(schedule.date, schedule.pickupTime))}</small>
+                <small style="color: #64748b;">Delivery: ${escapeHtml(formatDateTime(schedule.date, schedule.deliveryTime))}</small>
+                <small style="color: #64748b;">Capacity: ${escapeHtml(schedule.capacity || 'Not set')}</small>
+                <small style="color: #64748b;">Route: ${escapeHtml(schedule.route || 'Not set')}</small>
+                <small style="color: #64748b;">Pickup Point: ${escapeHtml(schedule.location || 'Not set')}</small>
+                <small style="color: #64748b;">Notes: ${escapeHtml(schedule.notes || 'No special requirements')}</small>
+              </div>
+              <div class="inline-actions">
+                <button onclick='showFullscreenSign(${JSON.stringify(schedule.clientName)}, ${JSON.stringify(client?.status || 'NORMAL')}, ${JSON.stringify(schedule.notes || '')})' 
+                        class="btn-primary" style="width: auto; padding: 8px 14px; margin-top: 0;">
+                  Show Pickup Sign
+                </button>
+                <button onclick='previewTaskMap(${schedule.id})' class="btn-secondary" type="button">
+                  View Route
+                </button>
+                <button onclick='openDriverNavigation(${schedule.id})' class="btn-secondary" type="button">
+                  Open Navigation
+                </button>
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('') : '<li class="item-card"><div><strong>No manager tasks assigned yet.</strong><br><small class="muted">Create a trip or tour in the manager dashboard.</small></div></li>';
+    }
+
+    function openDriverNavigation(scheduleId) {
+      const schedule = schedules.find(item => item.id === scheduleId);
+      if (!schedule) return;
+
+      const destination = schedule.location || schedule.route || schedule.clientName;
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+      window.open(mapsUrl, '_blank', 'noopener');
+    }
+
+    function showFullscreenSign(clientName, status, prefs) {
+      const sign = document.getElementById('fullscreen-sign');
+      const nameElem = document.getElementById('sign-client-name');
+      const vipElem = document.getElementById('sign-vip-tag');
+      const prefsElem = document.getElementById('sign-prefs-display');
+
+      nameElem.innerText = clientName;
+      prefsElem.innerText = prefs ? `Note: ${prefs}` : '';
+      
+      if (status === 'VIP') {
+        vipElem.style.display = 'block';
+      } else {
+        vipElem.style.display = 'none';
+      }
+
+      sign.style.display = 'flex';
+
+      // Request fullscreen mode if supported on tablet
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    }
+
+    function hideFullscreenSign() {
+      document.getElementById('fullscreen-sign').style.display = 'none';
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function enterDriverKioskMode() {
+      document.body.classList.add('kiosk-mode');
+      const driverNavBtn = document.querySelectorAll('.nav-btn')[1];
+      if (!signedInDriver) {
+        showDriverSignIn(() => {
+          document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+          document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+          document.getElementById('driver-view').classList.add('active');
+          if (driverNavBtn) driverNavBtn.classList.add('active');
+          renderDriverTabletList();
+        });
+      } else if (driverNavBtn) {
+        switchView('driver-view', driverNavBtn);
+      }
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    }
+
+    function exitDriverKioskMode() {
+      document.body.classList.remove('kiosk-mode');
+      const managerNavBtn = document.querySelectorAll('.nav-btn')[0];
+      if (managerNavBtn) {
+        switchView('manager-view', managerNavBtn);
+      }
+
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    document.getElementById('enter-kiosk-btn').addEventListener('click', enterDriverKioskMode);
+    document.getElementById('kiosk-exit-btn').addEventListener('click', exitDriverKioskMode);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('mode') === 'driver' || urlParams.get('kiosk') === '1') {
+      enterDriverKioskMode();
+    }
+
+    // Initial render
+    populateContactSelects();
+    initializeVoiceAssistant();
+    if (opsConfig.email) {
+      document.getElementById('ops-email').value = opsConfig.email;
+    }
+    renderClients();
+    renderDrivers();
+    renderVehicles();
+    renderTablets();
+    renderSchedules();
+    renderMessages();
+    renderDriverMessages();
+    renderManagerDriverUpdates();
+    renderGpsHistory();
+    renderGpsDeviceLogs();
+    renderRouteTripLogs();
+    updateRouteTripStatus();
+    renderVehicleReports();
+  </script>
+</body>
+</html>
