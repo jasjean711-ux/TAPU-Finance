@@ -1038,8 +1038,10 @@
           <button type="button" class="btn-secondary" onclick="stopGpsTracking()">Stop</button>
           <button type="button" class="btn-primary" onclick="startRouteTrip()" style="width: auto;">Start Trip Log</button>
           <button type="button" class="btn-secondary" onclick="endRouteTrip()">End Trip Log</button>
+          <button type="button" class="btn-secondary" onclick="exportRouteTripsCsv()">Export Trip CSV</button>
         </div>
         <div id="route-trip-status" class="muted" style="margin-bottom: 10px;">No active trip log.</div>
+        <div class="muted" style="margin-bottom: 10px;">Tracking now supports auto trip start/stop, driver-tagged GPS logs, and exportable route history.</div>
         <div class="gps-readout">
           <div class="gps-stat">
             <span class="muted">Latitude</span>
@@ -1256,7 +1258,9 @@
       schedules: 'fleet_schedules',
       opsConfig: 'fleet_opsConfig',
       managerPin: 'fleet_manager_pin',
-      routeTrips: 'fleet_route_trips'
+      routeTrips: 'fleet_route_trips',
+      gpsTrail: 'fleet_gps_trail',
+      gpsDeviceLogs: 'fleet_gps_device_logs'
     };
 
     const DEFAULT_MANAGER_PIN = '1234';
@@ -1279,7 +1283,7 @@
     const messages  = [];
     const driverOutboundMessages = [];
     const vehicleReports = [];
-    const gpsDeviceLogs  = [];
+    const gpsDeviceLogs  = loadStore(STORE_KEYS.gpsDeviceLogs, []);
     const opsConfig = loadStore(STORE_KEYS.opsConfig, { email: '' });
     const routeTrips = loadStore(STORE_KEYS.routeTrips, []);
     const clients   = loadStore(STORE_KEYS.clients, [
@@ -1290,8 +1294,9 @@
     let gpsWatchId = null;
     let speechRecognition = null;
     let isVoiceListening = false;
-    const gpsTrail = [];
+    const gpsTrail = loadStore(STORE_KEYS.gpsTrail, []);
     let activeRouteTrip = null;
+    let pendingAutoTripStart = false;
 
     // ── Manager PIN ──────────────────────────────────────────────────────────
     let _pinCallback = null;
@@ -1369,6 +1374,13 @@
       return selectedTablet ? selectedTablet.tabletId : 'UNKNOWN-TABLET';
     }
 
+    function getTrackedDriverName(selectedTablet) {
+      if (signedInDriver) return signedInDriver;
+      if (!selectedTablet) return 'Unassigned driver';
+      const assignedSchedule = schedules.find(schedule => schedule.tabletCode === selectedTablet.tabletId);
+      return assignedSchedule?.driverName || 'Unassigned driver';
+    }
+
     function getDistanceKm(lat1, lng1, lat2, lng2) {
       const toRad = deg => deg * (Math.PI / 180);
       const R = 6371;
@@ -1397,7 +1409,7 @@
         el.textContent = 'No active trip log.';
         return;
       }
-      el.textContent = `Trip log active: ${activeRouteTrip.tabletCode} | ${activeRouteTrip.vehicleName} | Started ${activeRouteTrip.startTime}`;
+      el.textContent = `Trip log active: ${activeRouteTrip.driverName} | ${activeRouteTrip.tabletCode} | ${activeRouteTrip.vehicleName} | Points ${activeRouteTrip.points.length} | Started ${activeRouteTrip.startTime}`;
     }
 
     function renderRouteTripLogs() {
@@ -1408,15 +1420,72 @@
           <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
             <div>
               <strong>${escapeHtml(trip.vehicleName)}</strong>
+              <div class="muted">Driver: ${escapeHtml(trip.driverName || 'Unassigned driver')}</div>
               <div class="muted">Tablet: <span class="mono">${escapeHtml(trip.tabletCode)}</span> | SIM ${escapeHtml(trip.simPhone)}</div>
               <div class="muted">Start: ${escapeHtml(trip.startLat)}, ${escapeHtml(trip.startLng)} (${escapeHtml(trip.startTime)})</div>
               <div class="muted">End: ${escapeHtml(trip.endLat)}, ${escapeHtml(trip.endLng)} (${escapeHtml(trip.endTime)})</div>
-              <div class="muted">Distance: ${escapeHtml(trip.distanceKm)} km | Duration: ${escapeHtml(trip.duration)}</div>
+              <div class="muted">Distance: ${escapeHtml(trip.distanceKm)} km | Duration: ${escapeHtml(trip.duration)} | Points ${escapeHtml(trip.sampleCount || 0)}</div>
             </div>
             <span class="badge badge-success">Completed</span>
           </div>
         </li>
       `).join('') : '<li class="item-card"><div><strong>No completed route trips yet.</strong><br><small class="muted">Use Start Trip Log and End Trip Log during tracking.</small></div></li>';
+    }
+
+    function appendActiveTripPoint(lat, lng, accuracy, timestamp) {
+      if (!activeRouteTrip) return;
+      const lastPoint = activeRouteTrip.points[activeRouteTrip.points.length - 1];
+      const latText = lat.toFixed(6);
+      const lngText = lng.toFixed(6);
+      if (lastPoint && lastPoint.lat === latText && lastPoint.lng === lngText && lastPoint.time === timestamp) {
+        return;
+      }
+      activeRouteTrip.points.push({
+        lat: latText,
+        lng: lngText,
+        accuracy: `${Math.round(accuracy)} m`,
+        time: timestamp
+      });
+    }
+
+    function exportRouteTripsCsv() {
+      if (!routeTrips.length) {
+        updateGpsStatus('No trip history to export', 'idle');
+        return;
+      }
+
+      const escapeCsv = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+      const header = [
+        'driverName', 'vehicleName', 'tabletCode', 'simPhone',
+        'startTime', 'endTime', 'duration', 'distanceKm', 'sampleCount',
+        'startLat', 'startLng', 'endLat', 'endLng'
+      ];
+      const rows = routeTrips.map(trip => [
+        trip.driverName,
+        trip.vehicleName,
+        trip.tabletCode,
+        trip.simPhone,
+        trip.startTime,
+        trip.endTime,
+        trip.duration,
+        trip.distanceKm,
+        trip.sampleCount || 0,
+        trip.startLat,
+        trip.startLng,
+        trip.endLat,
+        trip.endLng
+      ]);
+      const csv = [header, ...rows].map(row => row.map(escapeCsv).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `7fleetsync-route-history-${Date.now()}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      updateGpsStatus('Trip CSV exported', 'live');
     }
 
     function startRouteTrip() {
@@ -1428,6 +1497,7 @@
       const gpsTabletId = document.getElementById('gps-tablet-select')?.value;
       const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
       const selectedVehicle = vehicles.find(vehicle => vehicle.id === selectedTablet?.vehicleId);
+      const trackedDriverName = getTrackedDriverName(selectedTablet);
       const latText = document.getElementById('gps-lat')?.textContent;
       const lngText = document.getElementById('gps-lng')?.textContent;
       const lat = Number(latText);
@@ -1441,15 +1511,25 @@
 
       activeRouteTrip = {
         id: Date.now(),
+        driverName: trackedDriverName,
         tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
         simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
         vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
         startLat: lat.toFixed(6),
         startLng: lng.toFixed(6),
         startTs: Date.now(),
-        startTime: new Date().toLocaleString()
+        startTime: new Date().toLocaleString(),
+        points: [
+          {
+            lat: lat.toFixed(6),
+            lng: lng.toFixed(6),
+            accuracy: document.getElementById('gps-accuracy')?.textContent || '--',
+            time: document.getElementById('gps-updated')?.textContent.replace('Last update: ', '') || new Date().toLocaleString()
+          }
+        ]
       };
 
+      pendingAutoTripStart = false;
       updateRouteTripStatus();
       updateGpsStatus('Trip log started', 'live');
     }
@@ -1481,6 +1561,7 @@
 
       routeTrips.unshift({
         id: activeRouteTrip.id,
+        driverName: activeRouteTrip.driverName,
         tabletCode: activeRouteTrip.tabletCode,
         simPhone: activeRouteTrip.simPhone,
         vehicleName: activeRouteTrip.vehicleName,
@@ -1491,11 +1572,14 @@
         endLng: endLng.toFixed(6),
         endTime: new Date(endTs).toLocaleString(),
         distanceKm: distanceKm.toFixed(2),
-        duration: formatDurationMs(endTs - activeRouteTrip.startTs)
+        duration: formatDurationMs(endTs - activeRouteTrip.startTs),
+        sampleCount: activeRouteTrip.points.length,
+        points: activeRouteTrip.points.slice()
       });
 
       saveStore(STORE_KEYS.routeTrips, routeTrips);
       activeRouteTrip = null;
+      pendingAutoTripStart = false;
       updateRouteTripStatus();
       renderRouteTripLogs();
       updateGpsStatus('Trip log saved', 'live');
@@ -2105,6 +2189,7 @@
           <div style="display: flex; justify-content: space-between; width: 100%; gap: 12px; align-items: flex-start;">
             <div>
               <strong>${escapeHtml(log.vehicleName)}</strong>
+              <div class="muted">Driver: ${escapeHtml(log.driverName || 'Unassigned driver')}</div>
               <div class="muted">Tablet: <span class="mono">${escapeHtml(log.tabletCode)}</span> | SIM ${escapeHtml(log.simPhone)}</div>
               <div class="muted">Lat/Lng: ${escapeHtml(log.lat)}, ${escapeHtml(log.lng)} | Accuracy ${escapeHtml(log.accuracy)}</div>
               <div class="muted">${escapeHtml(log.time)}</div>
@@ -2125,11 +2210,13 @@
       const gpsTabletId = document.getElementById('gps-tablet-select').value;
       const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
       const selectedVehicle = vehicles.find(vehicle => vehicle.id === selectedTablet?.vehicleId);
+      const trackedDriverName = getTrackedDriverName(selectedTablet);
 
       if (gpsWatchId !== null) {
         stopGpsTracking();
       }
 
+      pendingAutoTripStart = true;
       updateGpsStatus('Tracking live', 'live');
       document.getElementById('gps-updated').textContent = 'Waiting for the next position sample...';
 
@@ -2144,7 +2231,9 @@
         updateGoogleMapView(`${latitude},${longitude}`);
 
         gpsTrail.unshift({ lat: latitude.toFixed(6), lng: longitude.toFixed(6), time: timestamp });
+        saveStore(STORE_KEYS.gpsTrail, gpsTrail.slice(0, 100));
         gpsDeviceLogs.unshift({
+          driverName: trackedDriverName,
           tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
           simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
           vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
@@ -2154,11 +2243,14 @@
           time: timestamp,
           email: opsConfig.email || 'Not set'
         });
+        saveStore(STORE_KEYS.gpsDeviceLogs, gpsDeviceLogs.slice(0, 200));
+
+        if (pendingAutoTripStart && !activeRouteTrip) {
+          startRouteTrip();
+        }
 
         if (activeRouteTrip) {
-          activeRouteTrip.lastLat = latitude.toFixed(6);
-          activeRouteTrip.lastLng = longitude.toFixed(6);
-          activeRouteTrip.lastTime = timestamp;
+          appendActiveTripPoint(latitude, longitude, accuracy, timestamp);
           updateRouteTripStatus();
         }
 
@@ -2175,10 +2267,14 @@
     }
 
     function stopGpsTracking() {
+      if (activeRouteTrip) {
+        endRouteTrip();
+      }
       if (gpsWatchId !== null && navigator.geolocation?.clearWatch) {
         navigator.geolocation.clearWatch(gpsWatchId);
       }
       gpsWatchId = null;
+      pendingAutoTripStart = false;
       updateGpsStatus('Tracking idle', 'idle');
       document.getElementById('gps-updated').textContent = 'GPS tracking has been stopped.';
     }
