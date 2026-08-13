@@ -197,6 +197,47 @@
       animation: panelSwitch 300ms ease both;
     }
 
+    .manager-toolbar {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(6, 12, 20, 0.72);
+      padding: 12px;
+      margin-bottom: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .manager-toolbar .toolbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .manager-toolbar select {
+      min-width: 240px;
+      width: auto;
+      margin-top: 0;
+    }
+
+    .hidden-module {
+      display: none !important;
+    }
+
+    .driver-quick-signin {
+      margin-top: 12px;
+      border: 1px solid rgba(37, 150, 255, 0.24);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(37, 150, 255, 0.07);
+      display: grid;
+      gap: 8px;
+    }
+
+    .driver-quick-signin .inline-actions {
+      margin-top: 0;
+    }
+
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .card {
       background:
@@ -840,10 +881,25 @@
 
   <!-- MANAGER DASHBOARD VIEW -->
   <main id="manager-view" class="view-panel active">
+    <div class="manager-toolbar">
+      <strong style="font-family:'Space Grotesk',sans-serif; color: var(--primary);">Manager Quick Menu</strong>
+      <div class="toolbar-actions">
+        <select id="manager-module-select" onchange="filterManagerModules()">
+          <option value="all">Show All Modules</option>
+          <option value="driver">Driver Management</option>
+          <option value="client">Client Management</option>
+          <option value="assets">Fleet Assets & Tablet Registry</option>
+          <option value="schedule">Trip & Tour Scheduler</option>
+          <option value="gps">GPS Realtime Tracking</option>
+          <option value="message">Message Module</option>
+        </select>
+        <button type="button" class="btn-secondary" onclick="showAllManagerModules()" style="width:auto; margin-top:0;">Show All</button>
+      </div>
+    </div>
     <div class="grid">
       
       <!-- Driver Management & License Upload -->
-      <section class="card">
+      <section class="card" data-manager-module="driver">
         <h2>Driver Management & License Upload</h2>
         <form id="driver-form">
           <div class="form-group">
@@ -861,11 +917,19 @@
           <button type="submit" class="btn-primary">Register Driver</button>
         </form>
 
+        <div class="driver-quick-signin">
+          <label for="manager-driver-signin-select">Driver Sign In (After Registration)</label>
+          <div class="inline-actions">
+            <select id="manager-driver-signin-select"></select>
+            <button type="button" class="btn-secondary" style="width:auto; margin-top:0;" onclick="managerSignInSelectedDriver()">Sign In Driver</button>
+          </div>
+        </div>
+
         <ul id="driver-list" class="item-list"></ul>
       </section>
 
       <!-- Client Status & Preferences -->
-      <section class="card">
+      <section class="card" data-manager-module="client">
         <h2>Client Management & Preferences</h2>
         <form id="client-form">
           <div class="form-group">
@@ -890,7 +954,7 @@
       </section>
 
       <!-- Scheduler -->
-      <section class="card">
+      <section class="card" data-manager-module="assets">
         <h2>Fleet Assets & Tablet Registry</h2>
 
         <h4>Operations Account</h4>
@@ -950,7 +1014,7 @@
         <ul id="tablet-list" class="item-list"></ul>
       </section>
 
-      <section class="card">
+      <section class="card" data-manager-module="schedule">
         <h2>Trip & Tour Scheduler</h2>
         <form id="schedule-form" class="stack-gap">
           <div class="split-row">
@@ -1020,7 +1084,7 @@
       </section>
 
       <!-- GPS Tracking -->
-      <section class="card">
+      <section class="card" data-manager-module="gps">
         <h2>GPS Realtime Tracking</h2>
         <div class="split-row">
           <div class="form-group">
@@ -1074,7 +1138,7 @@
       </section>
 
       <!-- Messaging -->
-      <section class="card">
+      <section class="card" data-manager-module="message">
         <h2>Message Module</h2>
         <form id="message-form" class="stack-gap">
           <div class="split-row">
@@ -1711,9 +1775,49 @@
     let signedInDriver = null;
 
     function populateSignInSelect() {
-      const select = document.getElementById('signin-driver-select');
-      select.innerHTML = '<option value="">-- Select your name --</option>' +
-        drivers.map(d => `<option value="${escapeHtml(d.name)}">${escapeHtml(d.name)}</option>`).join('');
+      const overlaySelect = document.getElementById('signin-driver-select');
+      const managerSelect = document.getElementById('manager-driver-signin-select');
+      const options = drivers.map(d => `<option value="${escapeHtml(d.name)}">${escapeHtml(d.name)}</option>`).join('');
+      overlaySelect.innerHTML = '<option value="">-- Select your name --</option>' + options;
+      if (managerSelect) {
+        managerSelect.innerHTML = options || '<option value="">No registered drivers</option>';
+      }
+    }
+
+    function managerSignInSelectedDriver() {
+      const managerSelect = document.getElementById('manager-driver-signin-select');
+      const selectedName = managerSelect?.value;
+      if (!selectedName) return;
+      managerSignInDriverByName(selectedName);
+    }
+
+    function managerSignInDriverByName(name) {
+      if (!name) return;
+      signedInDriver = name;
+      document.getElementById('driver-signed-in-label').textContent =
+        `Signed in as: ${name} · Touch optimized for iPad & SIM tablets`;
+      const managerSelect = document.getElementById('manager-driver-signin-select');
+      if (managerSelect) managerSelect.value = name;
+      const driverNavBtn = document.querySelectorAll('.nav-btn')[1];
+      if (driverNavBtn) {
+        switchView('driver-view', driverNavBtn);
+      }
+    }
+
+    function filterManagerModules() {
+      const selected = document.getElementById('manager-module-select')?.value || 'all';
+      const cards = document.querySelectorAll('#manager-view .card[data-manager-module]');
+      cards.forEach(card => {
+        const moduleType = card.getAttribute('data-manager-module');
+        const shouldShow = selected === 'all' || moduleType === selected;
+        card.classList.toggle('hidden-module', !shouldShow);
+      });
+    }
+
+    function showAllManagerModules() {
+      const select = document.getElementById('manager-module-select');
+      if (select) select.value = 'all';
+      filterManagerModules();
     }
 
     function showDriverSignIn(onSuccess) {
@@ -1787,6 +1891,7 @@
       document.getElementById(viewId).classList.add('active');
       element.classList.add('active');
       if (viewId === 'driver-view') renderDriverTabletList();
+      if (viewId === 'manager-view') filterManagerModules();
     }
 
     // Register Driver & License
@@ -1820,6 +1925,7 @@
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <img src="${d.licenseUrl}" alt="License Preview" class="license-preview">
+            <button class="btn-secondary" type="button" onclick='managerSignInDriverByName(${JSON.stringify(d.name)})' style="width:auto; margin-top:0;">Sign In</button>
             <button class="btn-danger" onclick="deleteRecord('drivers',${idx})">Remove</button>
           </div>
         </li>
@@ -2569,6 +2675,7 @@
     renderRouteTripLogs();
     updateRouteTripStatus();
     renderVehicleReports();
+    filterManagerModules();
   </script>
 </body>
 </html>
