@@ -1297,6 +1297,12 @@
     const gpsTrail = loadStore(STORE_KEYS.gpsTrail, []);
     let activeRouteTrip = null;
     let pendingAutoTripStart = false;
+    let lastMapUpdateAt = 0;
+    let lastRenderedGpsAt = 0;
+    let gpsPersistTimer = null;
+    const GPS_MAP_UPDATE_MS = 4000;
+    const GPS_RENDER_UPDATE_MS = 1200;
+    const GPS_MIN_MOVEMENT_METERS = 12;
 
     // ── Manager PIN ──────────────────────────────────────────────────────────
     let _pinCallback = null;
@@ -1392,6 +1398,10 @@
         Math.sin(dLng / 2) * Math.sin(dLng / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       return R * c;
+    }
+
+    function getDistanceMeters(lat1, lng1, lat2, lng2) {
+      return getDistanceKm(lat1, lng1, lat2, lng2) * 1000;
     }
 
     function formatDurationMs(durationMs) {
@@ -2182,6 +2192,78 @@
       `).join('') : '<li class="item-card"><div><strong>No GPS samples yet.</strong><br><small class="muted">Start tracking to capture live positions.</small></div></li>';
     }
 
+    function scheduleGpsPersistence() {
+      if (gpsPersistTimer) return;
+      gpsPersistTimer = window.setTimeout(() => {
+        gpsPersistTimer = null;
+        saveStore(STORE_KEYS.gpsTrail, gpsTrail.slice(0, 100));
+        saveStore(STORE_KEYS.gpsDeviceLogs, gpsDeviceLogs.slice(0, 200));
+        if (routeTrips.length) {
+          saveStore(STORE_KEYS.routeTrips, routeTrips);
+        }
+      }, 1000);
+    }
+
+    function scheduleGpsUiRefresh(force) {
+      const now = Date.now();
+      if (!force && now - lastRenderedGpsAt < GPS_RENDER_UPDATE_MS) {
+        return;
+      }
+      lastRenderedGpsAt = now;
+      renderGpsHistory();
+      renderGpsDeviceLogs();
+      if (activeRouteTrip || force) {
+        updateRouteTripStatus();
+      }
+    }
+
+    function shouldRefreshMap(lat, lng) {
+      const now = Date.now();
+      if (!lastMapUpdateAt) {
+        lastMapUpdateAt = now;
+        return true;
+      }
+      if (now - lastMapUpdateAt < GPS_MAP_UPDATE_MS) {
+        return false;
+      }
+      lastMapUpdateAt = now;
+      return true;
+    }
+
+    function pushGpsSample(lat, lng, accuracy, timestamp, trackedDriverName, selectedTablet, selectedVehicle) {
+      const latText = lat.toFixed(6);
+      const lngText = lng.toFixed(6);
+      const lastTrailEntry = gpsTrail[0];
+      if (lastTrailEntry) {
+        const movementMeters = getDistanceMeters(
+          Number(lastTrailEntry.lat),
+          Number(lastTrailEntry.lng),
+          lat,
+          lng
+        );
+        if (movementMeters < GPS_MIN_MOVEMENT_METERS) {
+          return false;
+        }
+      }
+
+      gpsTrail.unshift({ lat: latText, lng: lngText, time: timestamp });
+      gpsTrail.splice(100);
+      gpsDeviceLogs.unshift({
+        driverName: trackedDriverName,
+        tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
+        simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
+        vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
+        lat: latText,
+        lng: lngText,
+        accuracy: `${Math.round(accuracy)} m`,
+        time: timestamp,
+        email: opsConfig.email || 'Not set'
+      });
+      gpsDeviceLogs.splice(200);
+      scheduleGpsPersistence();
+      return true;
+    }
+
     function renderGpsDeviceLogs() {
       const list = document.getElementById('gps-device-log');
       list.innerHTML = gpsDeviceLogs.length ? gpsDeviceLogs.slice(0, 8).map(log => `
@@ -2217,6 +2299,8 @@
       }
 
       pendingAutoTripStart = true;
+      lastMapUpdateAt = 0;
+      lastRenderedGpsAt = 0;
       updateGpsStatus('Tracking live', 'live');
       document.getElementById('gps-updated').textContent = 'Waiting for the next position sample...';
 
@@ -2228,41 +2312,36 @@
         document.getElementById('gps-lng').textContent = longitude.toFixed(6);
         document.getElementById('gps-accuracy').textContent = `${Math.round(accuracy)} m`;
         document.getElementById('gps-updated').textContent = `Last update: ${timestamp}`;
-        updateGoogleMapView(`${latitude},${longitude}`);
+        if (shouldRefreshMap(latitude, longitude)) {
+          updateGoogleMapView(`${latitude},${longitude}`);
+        }
 
-        gpsTrail.unshift({ lat: latitude.toFixed(6), lng: longitude.toFixed(6), time: timestamp });
-        saveStore(STORE_KEYS.gpsTrail, gpsTrail.slice(0, 100));
-        gpsDeviceLogs.unshift({
-          driverName: trackedDriverName,
-          tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unknown',
-          simPhone: selectedTablet ? selectedTablet.simPhone : 'Unknown',
-          vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
-          lat: latitude.toFixed(6),
-          lng: longitude.toFixed(6),
-          accuracy: `${Math.round(accuracy)} m`,
-          time: timestamp,
-          email: opsConfig.email || 'Not set'
-        });
-        saveStore(STORE_KEYS.gpsDeviceLogs, gpsDeviceLogs.slice(0, 200));
+        const acceptedSample = pushGpsSample(
+          latitude,
+          longitude,
+          accuracy,
+          timestamp,
+          trackedDriverName,
+          selectedTablet,
+          selectedVehicle
+        );
 
         if (pendingAutoTripStart && !activeRouteTrip) {
           startRouteTrip();
         }
 
-        if (activeRouteTrip) {
+        if (acceptedSample && activeRouteTrip) {
           appendActiveTripPoint(latitude, longitude, accuracy, timestamp);
-          updateRouteTripStatus();
         }
 
-        renderGpsHistory();
-        renderGpsDeviceLogs();
+        scheduleGpsUiRefresh(Boolean(acceptedSample));
       }, error => {
         updateGpsStatus('GPS unavailable', 'idle');
         document.getElementById('gps-updated').textContent = error.message;
       }, {
         enableHighAccuracy: true,
-        maximumAge: 5000,
-        timeout: 10000
+        maximumAge: 10000,
+        timeout: 15000
       });
     }
 
@@ -2275,6 +2354,12 @@
       }
       gpsWatchId = null;
       pendingAutoTripStart = false;
+      if (gpsPersistTimer) {
+        clearTimeout(gpsPersistTimer);
+        gpsPersistTimer = null;
+      }
+      saveStore(STORE_KEYS.gpsTrail, gpsTrail.slice(0, 100));
+      saveStore(STORE_KEYS.gpsDeviceLogs, gpsDeviceLogs.slice(0, 200));
       updateGpsStatus('Tracking idle', 'idle');
       document.getElementById('gps-updated').textContent = 'GPS tracking has been stopped.';
     }
