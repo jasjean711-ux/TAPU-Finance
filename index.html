@@ -1033,6 +1033,10 @@
           </div>
         </div>
         <div id="gps-device-summary" class="muted" style="margin-bottom: 10px;">No tablet selected for tracking.</div>
+        <label class="muted" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <input type="checkbox" id="gps-smooth-mode" checked>
+          Smooth GPS mode for mobile tracking
+        </label>
         <div class="inline-actions" style="margin-bottom: 12px;">
           <button type="button" class="btn-primary" onclick="startGpsTracking()" style="width: auto;">Start Tracking</button>
           <button type="button" class="btn-secondary" onclick="stopGpsTracking()">Stop</button>
@@ -1301,8 +1305,11 @@
     let lastRenderedGpsAt = 0;
     let gpsPersistTimer = null;
     const GPS_MAP_UPDATE_MS = 4000;
+    const GPS_MAP_UPDATE_SMOOTH_MS = 12000;
     const GPS_RENDER_UPDATE_MS = 1200;
+    const GPS_RENDER_UPDATE_SMOOTH_MS = 1800;
     const GPS_MIN_MOVEMENT_METERS = 12;
+    const GPS_MIN_MOVEMENT_SMOOTH_METERS = 20;
 
     // ── Manager PIN ──────────────────────────────────────────────────────────
     let _pinCallback = null;
@@ -1385,6 +1392,10 @@
       if (!selectedTablet) return 'Unassigned driver';
       const assignedSchedule = schedules.find(schedule => schedule.tabletCode === selectedTablet.tabletId);
       return assignedSchedule?.driverName || 'Unassigned driver';
+    }
+
+    function isSmoothGpsModeEnabled() {
+      return Boolean(document.getElementById('gps-smooth-mode')?.checked);
     }
 
     function getDistanceKm(lat1, lng1, lat2, lng2) {
@@ -2206,7 +2217,8 @@
 
     function scheduleGpsUiRefresh(force) {
       const now = Date.now();
-      if (!force && now - lastRenderedGpsAt < GPS_RENDER_UPDATE_MS) {
+      const renderInterval = isSmoothGpsModeEnabled() ? GPS_RENDER_UPDATE_SMOOTH_MS : GPS_RENDER_UPDATE_MS;
+      if (!force && now - lastRenderedGpsAt < renderInterval) {
         return;
       }
       lastRenderedGpsAt = now;
@@ -2219,11 +2231,12 @@
 
     function shouldRefreshMap(lat, lng) {
       const now = Date.now();
+      const mapInterval = isSmoothGpsModeEnabled() ? GPS_MAP_UPDATE_SMOOTH_MS : GPS_MAP_UPDATE_MS;
       if (!lastMapUpdateAt) {
         lastMapUpdateAt = now;
         return true;
       }
-      if (now - lastMapUpdateAt < GPS_MAP_UPDATE_MS) {
+      if (now - lastMapUpdateAt < mapInterval) {
         return false;
       }
       lastMapUpdateAt = now;
@@ -2234,6 +2247,7 @@
       const latText = lat.toFixed(6);
       const lngText = lng.toFixed(6);
       const lastTrailEntry = gpsTrail[0];
+      const minMovement = isSmoothGpsModeEnabled() ? GPS_MIN_MOVEMENT_SMOOTH_METERS : GPS_MIN_MOVEMENT_METERS;
       if (lastTrailEntry) {
         const movementMeters = getDistanceMeters(
           Number(lastTrailEntry.lat),
@@ -2241,7 +2255,7 @@
           lat,
           lng
         );
-        if (movementMeters < GPS_MIN_MOVEMENT_METERS) {
+        if (movementMeters < minMovement) {
           return false;
         }
       }
@@ -2293,6 +2307,7 @@
       const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
       const selectedVehicle = vehicles.find(vehicle => vehicle.id === selectedTablet?.vehicleId);
       const trackedDriverName = getTrackedDriverName(selectedTablet);
+      const smoothModeEnabled = isSmoothGpsModeEnabled();
 
       if (gpsWatchId !== null) {
         stopGpsTracking();
@@ -2339,9 +2354,9 @@
         updateGpsStatus('GPS unavailable', 'idle');
         document.getElementById('gps-updated').textContent = error.message;
       }, {
-        enableHighAccuracy: true,
-        maximumAge: 10000,
-        timeout: 15000
+        enableHighAccuracy: !smoothModeEnabled,
+        maximumAge: smoothModeEnabled ? 15000 : 10000,
+        timeout: smoothModeEnabled ? 20000 : 15000
       });
     }
 
