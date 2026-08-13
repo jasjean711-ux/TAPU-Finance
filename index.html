@@ -1224,6 +1224,22 @@
 
       <section class="card">
         <h2>Vehicle Status Report</h2>
+        <div class="split-row" style="margin-bottom: 10px;">
+          <div class="form-group">
+            <label for="report-retention-minutes">Auto-hide Reports After</label>
+            <select id="report-retention-minutes">
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="60" selected>1 hour</option>
+              <option value="180">3 hours</option>
+              <option value="0">Keep all</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button type="button" class="btn-secondary" style="margin-top:0;" onclick="renderVehicleReports()">Refresh Reports</button>
+          </div>
+        </div>
         <form id="vehicle-report-form" class="stack-gap">
           <div class="split-row">
             <div class="form-group">
@@ -1368,6 +1384,7 @@
     let pendingAutoTripStart = false;
     let lastRenderedGpsAt = 0;
     let gpsPersistTimer = null;
+    let vehicleReportCleanupTimer = null;
     const GPS_RENDER_UPDATE_MS = 1200;
     const GPS_RENDER_UPDATE_SMOOTH_MS = 1800;
     const GPS_MIN_MOVEMENT_METERS = 12;
@@ -2397,6 +2414,33 @@
       `).join('') : '<li class="item-card"><div><strong>No telemetry logs yet.</strong><br><small class="muted">Tracking logs will include tablet ID, SIM number, and vehicle.</small></div></li>';
     }
 
+    function getVehicleReportRetentionMs() {
+      const minutes = Number(document.getElementById('report-retention-minutes')?.value || '60');
+      if (!Number.isFinite(minutes) || minutes <= 0) return 0;
+      return minutes * 60 * 1000;
+    }
+
+    function cleanupExpiredVehicleReports() {
+      const now = Date.now();
+      const before = vehicleReports.length;
+      for (let i = vehicleReports.length - 1; i >= 0; i -= 1) {
+        const report = vehicleReports[i];
+        if (report.expiresAt && report.expiresAt <= now) {
+          vehicleReports.splice(i, 1);
+        }
+      }
+      return vehicleReports.length !== before;
+    }
+
+    function startVehicleReportCleanupTimer() {
+      if (vehicleReportCleanupTimer) return;
+      vehicleReportCleanupTimer = window.setInterval(() => {
+        if (cleanupExpiredVehicleReports()) {
+          renderVehicleReports();
+        }
+      }, 30000);
+    }
+
     function startGpsTracking() {
       if (!navigator.geolocation) {
         updateGpsStatus('Geolocation not supported', 'idle');
@@ -2494,25 +2538,55 @@
       const ready = document.getElementById('vehicle-ready').value;
       const notes = document.getElementById('vehicle-notes').value;
       const selectedTrip = schedules.find(schedule => String(schedule.id) === tripId);
+      const reportDriverName = signedInDriver || 'Unassigned driver';
+      const retentionMs = getVehicleReportRetentionMs();
+      const now = Date.now();
 
-      vehicleReports.unshift({
+      const reportRecord = {
         id: Date.now(),
+        tripId,
         tripLabel: selectedTrip ? getTaskLabel(selectedTrip) : 'Unassigned trip',
+        driverName: reportDriverName,
         phase,
         odometer,
         fuel,
         cleanliness,
         ready,
         notes,
-        time: new Date().toLocaleString()
-      });
+        time: new Date(now).toLocaleString(),
+        expiresAt: retentionMs > 0 ? now + retentionMs : null
+      };
+
+      const existingIdx = vehicleReports.findIndex(report =>
+        String(report.tripId || '') === String(tripId || '') &&
+        String(report.phase || '') === String(phase || '') &&
+        String(report.driverName || '') === String(reportDriverName || '')
+      );
+
+      if (existingIdx >= 0) {
+        const oldId = vehicleReports[existingIdx].id;
+        vehicleReports.splice(existingIdx, 1);
+        reportRecord.id = oldId;
+      }
+
+      vehicleReports.unshift(reportRecord);
 
       renderVehicleReports();
       document.getElementById('vehicle-report-form').reset();
       populateContactSelects();
     });
 
+    document.getElementById('report-retention-minutes').addEventListener('change', function() {
+      const retentionMs = getVehicleReportRetentionMs();
+      const now = Date.now();
+      vehicleReports.forEach(report => {
+        report.expiresAt = retentionMs > 0 ? now + retentionMs : null;
+      });
+      renderVehicleReports();
+    });
+
     function renderVehicleReports() {
+      cleanupExpiredVehicleReports();
       const list = document.getElementById('vehicle-report-list');
       list.innerHTML = vehicleReports.length ? vehicleReports.map(report => `
         <li class="item-card stack">
@@ -2520,6 +2594,7 @@
             <div>
               <strong>${escapeHtml(report.tripLabel)}</strong>
               <div class="muted">${escapeHtml(report.time)}</div>
+              <div class="muted">Driver: ${escapeHtml(report.driverName || 'Unassigned driver')}</div>
             </div>
             <span class="badge ${report.ready === 'Ready' ? 'badge-success' : 'badge-warning'}">${escapeHtml(report.phase)}</span>
           </div>
@@ -2676,6 +2751,7 @@
     updateRouteTripStatus();
     renderVehicleReports();
     filterManagerModules();
+    startVehicleReportCleanupTimer();
   </script>
 </body>
 </html>
