@@ -1040,12 +1040,13 @@
         <div class="inline-actions" style="margin-bottom: 12px;">
           <button type="button" class="btn-primary" onclick="startGpsTracking()" style="width: auto;">Start Tracking</button>
           <button type="button" class="btn-secondary" onclick="stopGpsTracking()">Stop</button>
+          <button type="button" class="btn-secondary" onclick="refreshLiveGpsMap()">Refresh Live Map</button>
           <button type="button" class="btn-primary" onclick="startRouteTrip()" style="width: auto;">Start Trip Log</button>
           <button type="button" class="btn-secondary" onclick="endRouteTrip()">End Trip Log</button>
           <button type="button" class="btn-secondary" onclick="exportRouteTripsCsv()">Export Trip CSV</button>
         </div>
         <div id="route-trip-status" class="muted" style="margin-bottom: 10px;">No active trip log.</div>
-        <div class="muted" style="margin-bottom: 10px;">Tracking now supports auto trip start/stop, driver-tagged GPS logs, and exportable route history.</div>
+        <div class="muted" style="margin-bottom: 10px;">Tracking now supports auto trip start/stop, driver-tagged GPS logs, exportable route history, and manual live-map refresh for smoother mobile use.</div>
         <div class="gps-readout">
           <div class="gps-stat">
             <span class="muted">Latitude</span>
@@ -1301,15 +1302,13 @@
     const gpsTrail = loadStore(STORE_KEYS.gpsTrail, []);
     let activeRouteTrip = null;
     let pendingAutoTripStart = false;
-    let lastMapUpdateAt = 0;
     let lastRenderedGpsAt = 0;
     let gpsPersistTimer = null;
-    const GPS_MAP_UPDATE_MS = 4000;
-    const GPS_MAP_UPDATE_SMOOTH_MS = 12000;
     const GPS_RENDER_UPDATE_MS = 1200;
     const GPS_RENDER_UPDATE_SMOOTH_MS = 1800;
     const GPS_MIN_MOVEMENT_METERS = 12;
     const GPS_MIN_MOVEMENT_SMOOTH_METERS = 20;
+    let lastKnownGpsPosition = null;
 
     // ── Manager PIN ──────────────────────────────────────────────────────────
     let _pinCallback = null;
@@ -1367,6 +1366,16 @@
 
     function updateGoogleMapView(query) {
       document.getElementById('gps-map-frame').src = buildGoogleMapUrl(query);
+    }
+
+    function refreshLiveGpsMap() {
+      if (!lastKnownGpsPosition) {
+        updateGpsStatus('No live location yet', 'idle');
+        document.getElementById('gps-updated').textContent = 'Start tracking and wait for a GPS sample before refreshing the map.';
+        return;
+      }
+      updateGoogleMapView(`${lastKnownGpsPosition.lat},${lastKnownGpsPosition.lng}`);
+      updateGpsStatus('Live map refreshed', 'live');
     }
 
     function getTaskLabel(schedule) {
@@ -2229,20 +2238,6 @@
       }
     }
 
-    function shouldRefreshMap(lat, lng) {
-      const now = Date.now();
-      const mapInterval = isSmoothGpsModeEnabled() ? GPS_MAP_UPDATE_SMOOTH_MS : GPS_MAP_UPDATE_MS;
-      if (!lastMapUpdateAt) {
-        lastMapUpdateAt = now;
-        return true;
-      }
-      if (now - lastMapUpdateAt < mapInterval) {
-        return false;
-      }
-      lastMapUpdateAt = now;
-      return true;
-    }
-
     function pushGpsSample(lat, lng, accuracy, timestamp, trackedDriverName, selectedTablet, selectedVehicle) {
       const latText = lat.toFixed(6);
       const lngText = lng.toFixed(6);
@@ -2314,22 +2309,25 @@
       }
 
       pendingAutoTripStart = true;
-      lastMapUpdateAt = 0;
       lastRenderedGpsAt = 0;
+      lastKnownGpsPosition = null;
       updateGpsStatus('Tracking live', 'live');
       document.getElementById('gps-updated').textContent = 'Waiting for the next position sample...';
 
       gpsWatchId = navigator.geolocation.watchPosition(position => {
         const { latitude, longitude, accuracy } = position.coords;
         const timestamp = new Date(position.timestamp).toLocaleString();
+        lastKnownGpsPosition = {
+          lat: latitude.toFixed(6),
+          lng: longitude.toFixed(6),
+          accuracy: `${Math.round(accuracy)} m`,
+          time: timestamp
+        };
 
         document.getElementById('gps-lat').textContent = latitude.toFixed(6);
         document.getElementById('gps-lng').textContent = longitude.toFixed(6);
         document.getElementById('gps-accuracy').textContent = `${Math.round(accuracy)} m`;
         document.getElementById('gps-updated').textContent = `Last update: ${timestamp}`;
-        if (shouldRefreshMap(latitude, longitude)) {
-          updateGoogleMapView(`${latitude},${longitude}`);
-        }
 
         const acceptedSample = pushGpsSample(
           latitude,
@@ -2369,6 +2367,7 @@
       }
       gpsWatchId = null;
       pendingAutoTripStart = false;
+      lastKnownGpsPosition = null;
       if (gpsPersistTimer) {
         clearTimeout(gpsPersistTimer);
         gpsPersistTimer = null;
