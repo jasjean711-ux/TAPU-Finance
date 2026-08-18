@@ -8,32 +8,60 @@
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap');
 
     :root {
-      --primary: #1a3c6e;
-      --accent: #1a3c6e;
-      --accent-strong: #142f59;
-      --accent-soft: rgba(26, 60, 110, 0.10);
-      --success: #e87722;
-      --success-soft: rgba(232, 119, 34, 0.12);
-      --vip-gold: #e87722;
-      --bg: #f0f4f9;
-      --bg-panel: #ffffff;
-      --card-bg: #ffffff;
-      --card-alt: #f8f9fb;
-      --border: #d5dce8;
-      --text: #1a2236;
-      --muted-text: #5a6a85;
-      --shadow: 0 2px 12px rgba(26, 60, 110, 0.09);
+      --primary: #dff7ff;
+      --accent: #2596ff;
+      --accent-strong: #0f6bff;
+      --accent-soft: rgba(37, 150, 255, 0.18);
+      --success: #14d98b;
+      --success-soft: rgba(20, 217, 139, 0.16);
+      --vip-gold: #f7c948;
+      --bg: #04070b;
+      --bg-panel: rgba(7, 15, 24, 0.88);
+      --card-bg: rgba(10, 20, 31, 0.9);
+      --card-alt: rgba(8, 28, 24, 0.88);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #eef8ff;
+      --muted-text: #8aa3b8;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
-      background: var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(37, 150, 255, 0.24), transparent 26%),
+        radial-gradient(circle at top right, rgba(20, 217, 139, 0.18), transparent 24%),
+        linear-gradient(160deg, #02050a 0%, #07111a 42%, #020507 100%);
       color: var(--text);
       padding: 0;
       font-family: 'DM Sans', sans-serif;
       position: relative;
       overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: '';
+      position: fixed;
+      inset: auto;
+      width: 340px;
+      height: 340px;
+      border-radius: 50%;
+      filter: blur(70px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::before {
+      top: -120px;
+      left: -60px;
+      background: rgba(37, 150, 255, 0.22);
+    }
+
+    body::after {
+      right: -80px;
+      bottom: -100px;
+      background: rgba(20, 217, 139, 0.16);
     }
 
     .app-shell {
@@ -48,9 +76,10 @@
 
     .sidebar {
       border: 1px solid var(--border);
-      border-radius: 18px;
-      background: var(--primary);
-      box-shadow: 0 2px 16px rgba(26,60,110,0.12);
+      border-radius: 22px;
+      background: rgba(6, 12, 20, 0.82);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow);
       padding: 20px;
       display: grid;
       align-content: start;
@@ -68,14 +97,14 @@
       margin: 0;
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.2rem;
-      color: #ffffff;
+      color: var(--primary);
       letter-spacing: 0.03em;
     }
 
     .sidebar-brand p {
       margin: 0;
       font-size: 0.84rem;
-      color: rgba(255,255,255,0.72);
+      color: var(--muted-text);
     }
 
     .sidebar-nav {
@@ -84,39 +113,38 @@
     }
 
     .nav-btn {
-      padding: 11px 13px;
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.75);
+      padding: 12px 14px;
+      border: 1px solid rgba(138, 163, 184, 0.18);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted-text);
       text-align: left;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
       font-family: 'Space Grotesk', sans-serif;
       transition: all 160ms ease;
     }
 
     .nav-btn:hover {
-      color: #fff;
-      border-color: rgba(255,255,255,0.40);
-      background: rgba(255,255,255,0.18);
+      color: var(--text);
+      border-color: rgba(37, 150, 255, 0.45);
       transform: translateY(-1px);
     }
 
     .nav-btn.active {
-      background: #e87722;
-      color: #ffffff;
-      border-color: #e87722;
-      box-shadow: 0 4px 14px rgba(232,119,34,0.35);
+      background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+      color: #03121d;
+      border-color: transparent;
+      box-shadow: 0 10px 28px rgba(12, 110, 255, 0.3);
     }
 
     .sidebar-note {
-      border: 1px solid rgba(255,255,255,0.22);
-      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(20, 217, 139, 0.24);
+      background: rgba(20, 217, 139, 0.08);
       border-radius: 14px;
       padding: 12px;
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.80);
+      color: #a2f3cf;
     }
 
     .sidebar,
@@ -142,8 +170,9 @@
       margin-bottom: 0;
       padding: 18px 20px;
       border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #ffffff;
+      border-radius: 20px;
+      background: rgba(6, 12, 20, 0.72);
+      backdrop-filter: blur(16px);
       box-shadow: var(--shadow);
     }
 
@@ -170,8 +199,8 @@
 
     .manager-toolbar {
       border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #ffffff;
+      border-radius: 16px;
+      background: rgba(6, 12, 20, 0.72);
       padding: 12px;
       margin-bottom: 14px;
       display: grid;
@@ -197,10 +226,10 @@
 
     .driver-quick-signin {
       margin-top: 12px;
-      border: 1px solid rgba(26, 60, 110, 0.18);
+      border: 1px solid rgba(37, 150, 255, 0.24);
       border-radius: 14px;
       padding: 12px;
-      background: rgba(26, 60, 110, 0.05);
+      background: rgba(37, 150, 255, 0.07);
       display: grid;
       gap: 8px;
     }
@@ -209,13 +238,16 @@
       margin-top: 0;
     }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .card {
-      background: #ffffff;
-      padding: 18px;
-      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+        var(--card-bg);
+      padding: 22px;
+      border-radius: 22px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
       position: relative;
       overflow: hidden;
       opacity: 0;
@@ -240,20 +272,26 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 3px;
-      background: linear-gradient(90deg, #1a3c6e, #e87722);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(37, 150, 255, 0.75), rgba(20, 217, 139, 0.75), transparent);
     }
 
     #manager-view .card:nth-child(odd) {
-      background: #ffffff;
+      background:
+        linear-gradient(180deg, rgba(37, 150, 255, 0.08), rgba(255, 255, 255, 0.01)),
+        var(--card-bg);
     }
 
     #manager-view .card:nth-child(even) {
-      background: #f8f9fb;
+      background:
+        linear-gradient(180deg, rgba(20, 217, 139, 0.08), rgba(255, 255, 255, 0.01)),
+        var(--card-alt);
     }
 
     #driver-view .card {
-      background: #ffffff;
+      background:
+        linear-gradient(180deg, rgba(20, 217, 139, 0.08), rgba(37, 150, 255, 0.04)),
+        rgba(6, 17, 20, 0.92);
     }
 
     .card h2 {
@@ -262,8 +300,6 @@
       color: var(--primary);
       font-family: 'Space Grotesk', sans-serif;
       letter-spacing: 0.02em;
-      border-left: 4px solid #e87722;
-      padding-left: 10px;
     }
 
     .form-group { margin-bottom: 12px; }
@@ -274,80 +310,81 @@
       margin-bottom: 6px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--primary);
+      color: #b7d1e2;
     }
 
     input, select, textarea {
       width: 100%;
       padding: 11px 13px;
-      border: 1px solid #d0d8e8;
-      border-radius: 10px;
+      border: 1px solid rgba(138, 163, 184, 0.18);
+      border-radius: 14px;
       font-size: 0.95rem;
-      background: #ffffff;
+      background: rgba(4, 10, 18, 0.78);
       color: var(--text);
-      transition: border-color 160ms ease, box-shadow 160ms ease;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
     }
 
     select option {
-      background: #ffffff;
-      color: #1a2236;
+      background: #0a1422;
+      color: #eef8ff;
     }
 
     input::placeholder,
     textarea::placeholder {
-      color: #9aabbc;
+      color: #6f8799;
     }
 
     input:focus,
     select:focus,
     textarea:focus {
       outline: none;
-      border-color: #1a3c6e;
-      box-shadow: 0 0 0 3px rgba(26, 60, 110, 0.12);
+      border-color: rgba(37, 150, 255, 0.7);
+      box-shadow: 0 0 0 4px rgba(37, 150, 255, 0.12);
+      transform: translateY(-1px);
     }
     
     button.btn-primary {
       width: 100%;
       padding: 11px 14px;
-      background: #1a3c6e;
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent-strong) 0%, var(--success) 100%);
+      color: #03121d;
       border: none;
-      border-radius: 10px;
-      font-weight: 700;
+      border-radius: 14px;
+      font-weight: 800;
       cursor: pointer;
       margin-top: 8px;
       font-family: 'Space Grotesk', sans-serif;
       letter-spacing: 0.03em;
-      transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-      box-shadow: 0 4px 14px rgba(26,60,110,0.20);
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+      box-shadow: 0 14px 28px rgba(10, 110, 255, 0.22);
     }
 
     button.btn-primary:hover {
-      background: #142f59;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(26,60,110,0.28);
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+      box-shadow: 0 18px 36px rgba(10, 110, 255, 0.3);
     }
 
     .item-list { list-style: none; margin-top: 12px; }
     .item-card {
       padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      border: 1px solid rgba(138, 163, 184, 0.12);
+      border-radius: 18px;
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #f7f9fc;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
     }
     .item-card.stack { align-items: flex-start; flex-direction: column; gap: 10px; }
     .muted { color: var(--muted-text); font-size: 0.85rem; }
     
     .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
-    .badge-vip { background: rgba(232,119,34,0.12); color: #c05e0a; border: 1px solid #e87722; }
-    .badge-normal { background: rgba(26,60,110,0.08); color: #1a3c6e; border: 1px solid rgba(26,60,110,0.2); }
-    .badge-info { background: rgba(26,60,110,0.08); color: #1a3c6e; }
-    .badge-success { background: rgba(22,163,74,0.10); color: #15803d; border: 1px solid rgba(22,163,74,0.3); }
-    .badge-warning { background: rgba(220,38,38,0.08); color: #b91c1c; border: 1px solid rgba(220,38,38,0.25); }
+    .badge-vip { background: rgba(247, 201, 72, 0.18); color: #ffd76b; border: 1px solid var(--vip-gold); }
+    .badge-normal { background: rgba(138, 163, 184, 0.14); color: #cce0ee; }
+    .badge-info { background: var(--accent-soft); color: #8ed0ff; }
+    .badge-success { background: var(--success-soft); color: #74f4bf; }
+    .badge-warning { background: rgba(247, 201, 72, 0.14); color: #ffe18c; }
 
     .split-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .stack-gap { display: grid; gap: 12px; }
@@ -355,10 +392,10 @@
     .btn-secondary {
       width: auto;
       padding: 10px 14px;
-      background: #ffffff;
-      color: #1a3c6e;
-      border: 1px solid #d0d8e8;
-      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid rgba(138, 163, 184, 0.14);
+      border-radius: 14px;
       font-weight: 700;
       cursor: pointer;
       font-family: 'Space Grotesk', sans-serif;
@@ -366,21 +403,21 @@
     }
 
     .btn-secondary:hover {
-      border-color: #1a3c6e;
+      border-color: rgba(20, 217, 139, 0.46);
       transform: translateY(-1px);
-      background: rgba(26,60,110,0.05);
+      background: rgba(20, 217, 139, 0.08);
     }
 
     .status-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; }
-    .status-pill.live { background: rgba(22,163,74,0.12); color: #15803d; border: 1px solid rgba(22,163,74,0.3); }
-    .status-pill.idle { background: rgba(26,60,110,0.08); color: #1a3c6e; border: 1px solid rgba(26,60,110,0.2); }
+    .status-pill.live { background: var(--success-soft); color: #7ef0c1; }
+    .status-pill.idle { background: rgba(138, 163, 184, 0.14); color: #c7dae7; }
     .gps-readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .gps-stat { padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: #f7f9fc; }
-    .gps-stat strong { display: block; font-size: 1rem; margin-top: 4px; color: #1a3c6e; }
+    .gps-stat { padding: 12px; border: 1px solid rgba(138, 163, 184, 0.14); border-radius: 16px; background: rgba(6, 14, 24, 0.88); }
+    .gps-stat strong { display: block; font-size: 1rem; margin-top: 4px; }
     .message-preview { width: 100%; }
-    .card h3 { font-size: 0.95rem; margin: 16px 0 10px; color: #1a3c6e; font-family: 'Space Grotesk', sans-serif; }
-    .card h4 { font-size: 0.82rem; margin: 12px 0 8px; color: #e87722; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
-    .map-frame { width: 100%; height: 260px; border: 1px solid var(--border); border-radius: 12px; margin-top: 14px; }
+    .card h3 { font-size: 0.95rem; margin: 16px 0 10px; color: #d4f4ff; font-family: 'Space Grotesk', sans-serif; }
+    .card h4 { font-size: 0.82rem; margin: 12px 0 8px; color: #97d9ff; font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
+    .map-frame { width: 100%; height: 260px; border: 1px solid rgba(37, 150, 255, 0.22); border-radius: 18px; margin-top: 14px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03); }
     .tablet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
     .task-meta { display: grid; gap: 4px; }
     .mono { font-family: 'Space Grotesk', sans-serif; letter-spacing: 0.03em; }
@@ -391,22 +428,22 @@
       align-items: center;
       gap: 10px;
       padding: 14px 16px;
-      border: 1px solid rgba(26,60,110,0.18);
+      border: 1px solid rgba(20, 217, 139, 0.28);
       border-radius: 16px;
-      background: linear-gradient(135deg, rgba(26,60,110,0.06), rgba(232,119,34,0.05));
+      background: linear-gradient(135deg, rgba(20, 217, 139, 0.15), rgba(37, 150, 255, 0.12));
       margin-bottom: 16px;
     }
 
     .driver-status-title {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 0.95rem;
-      color: #1a3c6e;
+      color: #d8fff0;
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
 
     .driver-status-meta {
-      color: #5a6a85;
+      color: #9adcc1;
       font-size: 0.85rem;
     }
 
@@ -417,31 +454,31 @@
 
     .kiosk-btn {
       min-height: 46px;
-      border-radius: 10px;
+      border-radius: 12px;
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
-      border: 1px solid #d0d8e8;
-      background: #ffffff;
-      color: #1a3c6e;
+      border: 1px solid rgba(138, 163, 184, 0.2);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
       cursor: pointer;
       transition: all 160ms ease;
     }
 
     .kiosk-btn:hover {
       transform: translateY(-1px);
-      border-color: #1a3c6e;
-      background: rgba(26,60,110,0.05);
+      border-color: rgba(20, 217, 139, 0.46);
+      background: rgba(20, 217, 139, 0.1);
     }
 
     .kiosk-btn.primary {
-      background: #1a3c6e;
-      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+      color: #03121d;
       border: none;
     }
 
     .kiosk-btn.danger {
-      border-color: rgba(220,38,38,0.4);
-      color: #b91c1c;
+      border-color: rgba(255, 111, 111, 0.35);
+      color: #ffd5d5;
     }
 
     body.kiosk-mode .app-shell {
@@ -481,68 +518,71 @@
       position: fixed;
       inset: 0;
       z-index: 9000;
-      background: rgba(26,60,110,0.55);
-      backdrop-filter: blur(6px);
+      background: rgba(1,4,10,0.92);
+      backdrop-filter: blur(10px);
       justify-content: center;
       align-items: center;
     }
     #manager-pin-overlay.visible { display: flex; }
     .pin-card {
-      background: #ffffff;
-      border: 1px solid #d0d8e8;
-      border-radius: 16px;
+      background: rgba(8,18,30,0.97);
+      border: 1px solid rgba(37,150,255,0.35);
+      border-radius: 24px;
       padding: 32px 28px;
       width: 100%;
       max-width: 380px;
       display: grid;
       gap: 14px;
-      box-shadow: 0 16px 48px rgba(26,60,110,0.18);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5);
     }
     .pin-card::before {
       content: '';
       display: block;
-      height: 3px;
+      height: 2px;
       border-radius: 2px;
-      background: linear-gradient(90deg, #1a3c6e, #e87722);
+      background: linear-gradient(90deg, var(--accent), var(--success));
       margin-bottom: 4px;
     }
     .pin-title {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.4rem;
       font-weight: 700;
-      color: #1a3c6e;
+      color: var(--primary);
       text-align: center;
     }
     .pin-error {
       display: none;
-      background: rgba(220,38,38,0.08);
-      border: 1px solid rgba(220,38,38,0.3);
+      background: rgba(255,80,80,0.12);
+      border: 1px solid rgba(255,80,80,0.35);
       border-radius: 10px;
       padding: 9px 13px;
-      color: #b91c1c;
+      color: #ffb3b3;
       font-size: 0.88rem;
     }
     .pin-error.visible { display: block; }
     .btn-danger {
       padding: 5px 11px;
-      border-radius: 8px;
-      border: 1px solid rgba(220,38,38,0.35);
-      background: rgba(220,38,38,0.07);
-      color: #b91c1c;
+      border-radius: 10px;
+      border: 1px solid rgba(255,80,80,0.35);
+      background: rgba(255,80,80,0.08);
+      color: #ffb3b3;
       font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       font-family: 'Space Grotesk', sans-serif;
       transition: all 140ms ease;
     }
-    .btn-danger:hover { background: rgba(220,38,38,0.14); }
+    .btn-danger:hover { background: rgba(255,80,80,0.18); }
     #driver-signin-overlay {
       display: none;
       position: fixed;
       inset: 0;
       z-index: 8000;
-      background: rgba(26,60,110,0.55);
-      backdrop-filter: blur(6px);
+      background:
+        radial-gradient(circle at 30% 30%, rgba(37, 150, 255, 0.28), transparent 40%),
+        radial-gradient(circle at 70% 70%, rgba(20, 217, 139, 0.22), transparent 40%),
+        rgba(2, 5, 12, 0.97);
+      backdrop-filter: blur(10px);
       justify-content: center;
       align-items: center;
       flex-direction: column;
@@ -554,13 +594,13 @@
     }
 
     .signin-card {
-      background: #ffffff;
-      border: 1px solid #d0d8e8;
-      border-radius: 16px;
+      background: rgba(8, 18, 30, 0.95);
+      border: 1px solid rgba(37, 150, 255, 0.35);
+      border-radius: 28px;
       padding: 36px 32px;
       width: 100%;
       max-width: 460px;
-      box-shadow: 0 16px 48px rgba(26,60,110,0.18);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(20, 217, 139, 0.12);
       display: grid;
       gap: 18px;
     }
@@ -568,9 +608,9 @@
     .signin-card::before {
       content: '';
       display: block;
-      height: 3px;
+      height: 2px;
       border-radius: 2px;
-      background: linear-gradient(90deg, #1a3c6e, #e87722);
+      background: linear-gradient(90deg, var(--accent), var(--success));
       margin-bottom: 4px;
     }
 
@@ -578,12 +618,12 @@
       font-family: 'Space Grotesk', sans-serif;
       font-size: 1.8rem;
       font-weight: 700;
-      color: #1a3c6e;
+      color: var(--primary);
       text-align: center;
     }
 
     .signin-subtitle {
-      color: #5a6a85;
+      color: var(--muted-text);
       font-size: 0.9rem;
       text-align: center;
       margin-top: -10px;
@@ -591,11 +631,11 @@
 
     .signin-error {
       display: none;
-      background: rgba(220,38,38,0.08);
-      border: 1px solid rgba(220,38,38,0.3);
+      background: rgba(255, 80, 80, 0.12);
+      border: 1px solid rgba(255, 80, 80, 0.35);
       border-radius: 10px;
       padding: 10px 14px;
-      color: #b91c1c;
+      color: #ffb3b3;
       font-size: 0.88rem;
     }
 
@@ -625,7 +665,7 @@
     #driver-view .item-card {
       padding: 16px;
       border-radius: 20px;
-      border-color: rgba(26, 60, 110, 0.2);
+      border-color: rgba(20, 217, 139, 0.2);
     }
 
     #driver-view .task-meta {
@@ -635,7 +675,7 @@
     #driver-view .task-meta small {
       font-size: 0.92rem;
       line-height: 1.35;
-      color: #5a6a85;
+      color: #a8cfe0;
     }
 
     #driver-view .btn-primary,
@@ -766,7 +806,10 @@
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: linear-gradient(135deg, #1a3c6e 0%, #142f59 100%);
+      background:
+        radial-gradient(circle at top, rgba(37, 150, 255, 0.22), transparent 28%),
+        radial-gradient(circle at bottom, rgba(20, 217, 139, 0.16), transparent 30%),
+        rgba(1, 4, 10, 0.97);
       color: #ffffff;
       flex-direction: column;
       justify-content: center;
@@ -800,379 +843,11 @@
       font-size: 0.9rem;
       color: #83a1b6;
     }
-
-    .auth-gate {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 28px 16px;
-      background: #f0f4f9;
-    }
-
-    .auth-card {
-      width: 100%;
-      max-width: 520px;
-      background: #ffffff;
-      border: 1px solid #d0d8e8;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 8px 32px rgba(26,60,110,0.12);
-      display: grid;
-      gap: 14px;
-    }
-
-    .auth-brand {
-      text-align: center;
-      margin-bottom: 6px;
-    }
-
-    .auth-logo {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 10px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      font-size: 1.5rem;
-      background: #1a3c6e;
-      color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 6px 20px rgba(26,60,110,0.25);
-    }
-
-    .auth-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 2.2rem;
-      color: #1a3c6e;
-      line-height: 1.1;
-      margin-bottom: 4px;
-    }
-
-    .auth-subtitle {
-      color: #5a6a85;
-      font-size: 1rem;
-    }
-
-    .auth-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    .auth-tab {
-      border: 1px solid #d0d8e8;
-      background: #f7f9fc;
-      color: #5a6a85;
-      border-radius: 10px;
-      min-height: 42px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: 'Space Grotesk', sans-serif;
-    }
-
-    .auth-tab.active {
-      color: #ffffff;
-      background: #1a3c6e;
-      border-color: #1a3c6e;
-    }
-
-    .auth-pane {
-      display: none;
-      gap: 10px;
-    }
-
-    .auth-pane.active {
-      display: grid;
-    }
-
-    .auth-password-wrap {
-      position: relative;
-    }
-
-    .auth-password-wrap input {
-      padding-right: 44px;
-    }
-
-    .auth-eye {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      color: #1a3c6e;
-      cursor: pointer;
-      font-size: 1rem;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-    }
-
-    .auth-meta {
-      margin-top: 4px;
-      border: 1px solid rgba(26,60,110,0.15);
-      border-radius: 12px;
-      background: rgba(26,60,110,0.04);
-      color: #5a6a85;
-      font-size: 0.9rem;
-      padding: 12px;
-      line-height: 1.45;
-    }
-
-    .auth-error {
-      display: none;
-      border: 1px solid rgba(220,38,38,0.3);
-      background: rgba(220,38,38,0.07);
-      color: #b91c1c;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.88rem;
-    }
-
-    .auth-error.visible {
-      display: block;
-    }
-
-    .auth-success {
-      display: none;
-      border: 1px solid rgba(22,163,74,0.3);
-      background: rgba(22,163,74,0.08);
-      color: #15803d;
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: 0.88rem;
-    }
-
-    .auth-success.visible {
-      display: block;
-    }
-
-    .app-shell.is-hidden {
-      display: none;
-    }
-
-    .session-chip {
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(255,255,255,0.12);
-      color: #ffffff;
-      padding: 9px 10px;
-      font-size: 0.83rem;
-      line-height: 1.35;
-    }
-
-    /* Navy theme restore */
-    :root {
-      --primary: #f7fbff;
-      --accent: #2f7cff;
-      --accent-strong: #1f6cf1;
-      --accent-soft: rgba(47, 124, 255, 0.2);
-      --success: #29d178;
-      --success-soft: rgba(41, 209, 120, 0.16);
-      --vip-gold: #ffc84d;
-      --bg: #0e1628;
-      --bg-panel: rgba(17, 28, 48, 0.92);
-      --card-bg: rgba(24, 36, 61, 0.96);
-      --card-alt: rgba(20, 33, 54, 0.95);
-      --border: rgba(104, 132, 182, 0.26);
-      --text: #edf3ff;
-      --muted-text: #8b9bb9;
-      --shadow: 0 18px 50px rgba(2, 9, 26, 0.55);
-    }
-
-    body {
-      background:
-        radial-gradient(circle at top right, rgba(48, 113, 255, 0.15), transparent 34%),
-        radial-gradient(circle at top left, rgba(34, 198, 255, 0.09), transparent 28%),
-        linear-gradient(175deg, #101b31 0%, #0f1a2d 45%, #0c1628 100%) !important;
-      color: var(--text);
-    }
-
-    .sidebar {
-      background: rgba(17, 27, 47, 0.92) !important;
-      backdrop-filter: blur(16px);
-      box-shadow: var(--shadow);
-    }
-
-    .sidebar-brand h2 { color: var(--primary) !important; }
-    .sidebar-brand p { color: var(--muted-text) !important; }
-
-    .nav-btn {
-      border: 1px solid rgba(138, 163, 184, 0.18) !important;
-      background: rgba(26, 40, 68, 0.82) !important;
-      color: var(--muted-text) !important;
-    }
-
-    .nav-btn.active {
-      background: linear-gradient(135deg, #2d6bdb 0%, #1f95ef 100%) !important;
-      color: #f4f8ff !important;
-      border-color: rgba(95, 145, 236, 0.65) !important;
-    }
-
-    header,
-    .manager-toolbar,
-    .card,
-    #driver-view .card {
-      background: rgba(20, 32, 55, 0.92) !important;
-      color: var(--text);
-      box-shadow: var(--shadow);
-    }
-
-    .card::before {
-      height: 1px !important;
-      background: linear-gradient(90deg, transparent, rgba(37, 150, 255, 0.75), rgba(20, 217, 139, 0.75), transparent) !important;
-    }
-
-    label { color: #b7d1e2 !important; }
-
-    input, select, textarea {
-      border: 1px solid rgba(138, 163, 184, 0.18) !important;
-      border-radius: 14px !important;
-      background: rgba(4, 10, 18, 0.78) !important;
-      color: var(--text) !important;
-    }
-
-    select option {
-      background: #0a1422 !important;
-      color: #eef8ff !important;
-    }
-
-    button.btn-primary {
-      background: linear-gradient(135deg, var(--accent-strong) 0%, var(--success) 100%) !important;
-      color: #03121d !important;
-      border-radius: 14px !important;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.05) !important;
-      color: var(--text) !important;
-      border: 1px solid rgba(138, 163, 184, 0.14) !important;
-      border-radius: 14px !important;
-    }
-
-    .session-chip {
-      border: 1px solid rgba(95, 145, 236, 0.45) !important;
-      background: rgba(45, 92, 175, 0.18) !important;
-      color: #d9ecff !important;
-    }
-
-    .auth-gate {
-      background:
-        radial-gradient(circle at 20% 20%, rgba(55, 130, 255, 0.18), transparent 40%),
-        linear-gradient(175deg, #111b30 0%, #0d1628 100%) !important;
-    }
-
-    .auth-card {
-      background: rgba(19, 30, 52, 0.96) !important;
-      border: 1px solid rgba(89, 120, 173, 0.35) !important;
-      color: var(--text);
-    }
-
-    .auth-title { color: #f3f8ff !important; }
-    .auth-subtitle { color: #91a5c4 !important; }
-    .auth-tab {
-      background: rgba(26, 40, 68, 0.72) !important;
-      color: #afc2de !important;
-      border: 1px solid rgba(94, 124, 178, 0.35) !important;
-    }
-    .auth-tab.active {
-      background: linear-gradient(135deg, #2d6bdb 0%, #1f95ef 100%) !important;
-      color: #f6faff !important;
-    }
-    .auth-meta {
-      border: 1px solid rgba(89, 120, 173, 0.28) !important;
-      background: rgba(21, 35, 60, 0.9) !important;
-      color: #9db4d6 !important;
-    }
-    .auth-eye { color: #63a4ff !important; }
   </style>
 </head>
 <body>
 
-  <div id="auth-gate" class="auth-gate">
-    <div class="auth-card">
-      <div class="auth-brand">
-        <div class="auth-logo">🚐</div>
-        <div class="auth-title">FleetSync</div>
-        <div class="auth-subtitle">Professional Fleet Management</div>
-      </div>
-
-      <div class="auth-tabs">
-        <button type="button" id="auth-tab-signin" class="auth-tab active" onclick="setAuthMode('signin')">Sign In</button>
-        <button type="button" id="auth-tab-register" class="auth-tab" onclick="setAuthMode('register')">Register</button>
-      </div>
-
-      <div id="auth-error" class="auth-error"></div>
-      <div id="auth-success" class="auth-success"></div>
-
-      <form id="auth-signin-pane" class="auth-pane active">
-        <div class="form-group">
-          <label for="auth-username">Username</label>
-          <input type="text" id="auth-username" placeholder="Enter username" autocomplete="username" required>
-        </div>
-        <div class="form-group auth-password-wrap">
-          <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" placeholder="Enter password" autocomplete="current-password" required>
-          <button type="button" class="auth-eye" onclick="togglePassword('auth-password')">👁</button>
-        </div>
-        <div class="form-group">
-          <label for="auth-role">Role</label>
-          <select id="auth-role">
-            <option value="manager">Manager</option>
-            <option value="driver">Driver</option>
-          </select>
-        </div>
-        <button type="submit" class="btn-primary">Sign In</button>
-      </form>
-
-      <form id="auth-register-pane" class="auth-pane">
-        <div class="form-group">
-          <label for="register-display-name">Full Name</label>
-          <input type="text" id="register-display-name" placeholder="Enter full name" required>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="register-username">Username</label>
-            <input type="text" id="register-username" placeholder="Create username" required>
-          </div>
-          <div class="form-group">
-            <label for="register-role">Role</label>
-            <select id="register-role">
-              <option value="manager">Manager</option>
-              <option value="driver">Driver</option>
-            </select>
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group auth-password-wrap">
-            <label for="register-password">Password</label>
-            <input type="password" id="register-password" placeholder="Create password" required>
-            <button type="button" class="auth-eye" onclick="togglePassword('register-password')">👁</button>
-          </div>
-          <div class="form-group auth-password-wrap">
-            <label for="register-password-confirm">Confirm Password</label>
-            <input type="password" id="register-password-confirm" placeholder="Confirm password" required>
-            <button type="button" class="auth-eye" onclick="togglePassword('register-password-confirm')">👁</button>
-          </div>
-        </div>
-        <button type="submit" class="btn-primary">Create Account</button>
-      </form>
-
-      <div class="auth-meta">
-        <strong>Demo Accounts:</strong><br>
-        Manager: admin / admin123<br>
-        Driver: use registered driver account or sign in with manager-created account
-        <div style="margin-top:10px;">
-          <button type="button" class="btn-primary" onclick="enterDemoApp()" style="width:100%; margin-top:0; margin-bottom:8px;">Enter App Now</button>
-          <button type="button" class="btn-secondary" onclick="resetAuthAccess()" style="width:100%;">Reset Login Access</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="app-shell" class="app-shell is-hidden">
+  <div class="app-shell">
     <aside class="sidebar">
       <div class="sidebar-brand">
         <h2>7fleetsync</h2>
@@ -1193,9 +868,7 @@
         To change: open browser console and run:<br>
         <span class="mono" style="font-size:0.77rem;">localStorage.setItem('fleet_manager_pin','NEWPIN')</span>
       </div>
-
-      <div id="session-chip" class="session-chip">Not signed in</div>
-      <button type="button" class="btn-secondary" onclick="signOutApp()" style="width:100%;">Sign Out</button>
+      </div>
     </aside>
 
     <div class="content-area">
@@ -1221,83 +894,6 @@
           <option value="message">Message Module</option>
         </select>
         <button type="button" class="btn-secondary" onclick="showAllManagerModules()" style="width:auto; margin-top:0;">Show All</button>
-      </div>
-      <div style="border-top:1px solid rgba(138,163,184,0.14); padding-top:12px; display:grid; gap:10px;">
-        <strong style="font-family:'Space Grotesk',sans-serif; color: var(--primary);">Trial Backend</strong>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="firestore-profile-name">Backend Profile Name</label>
-            <input type="text" id="firestore-profile-name" placeholder="Default">
-          </div>
-          <div class="form-group">
-            <label for="firestore-profile-select">Saved Backend Profiles</label>
-            <select id="firestore-profile-select"></select>
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="backend-provider">Backend Provider</label>
-            <select id="backend-provider">
-              <option value="firebase">Firebase Firestore</option>
-              <option value="supabase">Supabase Realtime</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="firestore-enabled">Enable Trial Sync</label>
-            <select id="firestore-enabled">
-              <option value="false">Disabled</option>
-              <option value="true">Enabled</option>
-            </select>
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="firestore-project-id">Firebase Project ID</label>
-            <input type="text" id="firestore-project-id" placeholder="your-project-id">
-          </div>
-          <div class="form-group">
-            <label for="firestore-auth-domain">Auth Domain</label>
-            <input type="text" id="firestore-auth-domain" placeholder="your-project.firebaseapp.com">
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="firestore-api-key">Web API Key</label>
-            <input type="text" id="firestore-api-key" placeholder="AIza...">
-          </div>
-          <div class="form-group">
-            <label for="firestore-app-id">App ID</label>
-            <input type="text" id="firestore-app-id" placeholder="1:123:web:abc">
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="firestore-messaging-sender-id">Messaging Sender ID</label>
-            <input type="text" id="firestore-messaging-sender-id" placeholder="1234567890">
-          </div>
-          <div class="form-group">
-            <label for="supabase-url">Supabase Project URL</label>
-            <input type="text" id="supabase-url" placeholder="https://xxxx.supabase.co">
-          </div>
-        </div>
-        <div class="split-row">
-          <div class="form-group">
-            <label for="supabase-anon-key">Supabase Anon Key</label>
-            <input type="text" id="supabase-anon-key" placeholder="eyJhbGciOi...">
-          </div>
-          <div class="form-group">
-            <label for="supabase-table-name">Supabase Table</label>
-            <input type="text" id="supabase-table-name" placeholder="fleet_trial_state">
-          </div>
-        </div>
-        <div class="inline-actions">
-          <button type="button" class="btn-primary" id="firestore-connect-btn" onclick="connectBackendTrial()" style="width:auto; margin-top:0;">Connect Backend</button>
-          <button type="button" class="btn-secondary" onclick="saveBackendConfig({ profileName: document.getElementById('firestore-profile-name').value.trim(), provider: document.getElementById('backend-provider').value, enabled: document.getElementById('firestore-enabled').value === 'true', apiKey: document.getElementById('firestore-api-key').value.trim(), authDomain: document.getElementById('firestore-auth-domain').value.trim(), projectId: document.getElementById('firestore-project-id').value.trim(), appId: document.getElementById('firestore-app-id').value.trim(), messagingSenderId: document.getElementById('firestore-messaging-sender-id').value.trim(), supabaseUrl: document.getElementById('supabase-url').value.trim(), supabaseAnonKey: document.getElementById('supabase-anon-key').value.trim(), supabaseTableName: document.getElementById('supabase-table-name').value.trim() }); connectBackendTrial();" style="width:auto; margin-top:0;">Save Config</button>
-          <button type="button" class="btn-secondary" onclick="loadSelectedBackendProfile()" style="width:auto; margin-top:0;">Load Profile</button>
-          <button type="button" class="btn-secondary" onclick="deleteSelectedBackendProfile()" style="width:auto; margin-top:0;">Delete Profile</button>
-        </div>
-        <div id="firestore-status" class="muted">Local mode only.</div>
-        <div id="firestore-schema-preview" class="sidebar-note" style="margin-top: 2px;"></div>
       </div>
     </div>
     <div class="grid">
@@ -1427,9 +1023,6 @@
               <select id="schedule-type">
                 <option value="TRIP">Trip</option>
                 <option value="TOUR">Tour</option>
-                <option value="CORPORATE">Corporate Pickup</option>
-                <option value="STAFF_RUN">Staff Run (To Work)</option>
-                <option value="STAFF_RETURN">Staff Run (From Work)</option>
               </select>
             </div>
             <div class="form-group">
@@ -1476,54 +1069,14 @@
             <input type="text" id="schedule-location" placeholder="e.g. Heathrow Terminal 5">
           </div>
           <div class="form-group">
-            <label for="schedule-destination">Destination</label>
-            <input type="text" id="schedule-destination" placeholder="e.g. Hilton Park Lane Hotel">
-          </div>
-          <div class="form-group">
             <label for="schedule-route">Routes Touring</label>
             <textarea id="schedule-route" rows="2" placeholder="e.g. Heathrow > Westminster > London Eye > Hotel"></textarea>
-          </div>
-          <div id="company-fields-group" style="display:none; border:1px solid rgba(148,163,184,0.18); border-radius:14px; padding:14px; margin-top:4px;">
-            <div style="font-family:'Space Grotesk',sans-serif; color:var(--primary); font-weight:700; margin-bottom:10px;">Company / Workplace Details</div>
-            <div class="split-row">
-              <div class="form-group">
-                <label for="schedule-company-name">Company Name</label>
-                <input type="text" id="schedule-company-name" placeholder="e.g. Acme Corp Ltd">
-              </div>
-              <div class="form-group">
-                <label for="schedule-company-contact">Company Contact Person</label>
-                <input type="text" id="schedule-company-contact" placeholder="e.g. HR Manager">
-              </div>
-            </div>
-            <div class="split-row">
-              <div class="form-group">
-                <label for="schedule-company-address">Workplace Address</label>
-                <input type="text" id="schedule-company-address" placeholder="e.g. 100 Business Park, London">
-              </div>
-              <div class="form-group">
-                <label for="schedule-company-phone">Company Phone</label>
-                <input type="tel" id="schedule-company-phone" placeholder="e.g. +44 20 7000 0000">
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="schedule-worker-count">Number of Workers / Passengers</label>
-              <input type="number" id="schedule-worker-count" min="1" placeholder="e.g. 8">
-            </div>
-            <div class="form-group">
-              <label for="schedule-shift-time">Shift Start / End Time</label>
-              <input type="text" id="schedule-shift-time" placeholder="e.g. 07:00 shift start or 16:00 shift end">
-            </div>
           </div>
           <div class="form-group">
             <label for="schedule-notes">Trip Notes</label>
             <textarea id="schedule-notes" rows="2" placeholder="Calendar note, flight details, reminders"></textarea>
           </div>
-          <input type="hidden" id="schedule-edit-id" value="">
-          <div class="inline-actions">
-            <button type="submit" id="schedule-submit-btn" class="btn-primary" style="width:auto; margin-top:0;">Create Manager Task</button>
-            <button type="button" id="schedule-cancel-edit-btn" class="btn-secondary" style="display:none; width:auto; margin-top:0;" onclick="cancelScheduleEdit()">Cancel Edit</button>
-          </div>
-          <div id="schedule-edit-banner" style="display:none;" class="sidebar-note">Editing existing task — update and click <strong>Save Changes</strong>.</div>
+          <button type="submit" class="btn-primary">Create Manager Task</button>
         </form>
 
         <h3>Manager Task Queue</h3>
@@ -1580,9 +1133,6 @@
         <ul id="gps-history" class="item-list" style="margin-top: 12px;"></ul>
         <h3>Device Telemetry Logs</h3>
         <ul id="gps-device-log" class="item-list"></ul>
-        <h3>Tablet Server Link Status</h3>
-        <div id="tablet-link-alert" class="muted" style="margin-bottom: 8px;">No tablet heartbeat alerts.</div>
-        <ul id="tablet-link-status-list" class="item-list"></ul>
         <h3>Route Trip History</h3>
         <ul id="route-trip-log" class="item-list"></ul>
       </section>
@@ -1647,10 +1197,6 @@
         <label for="signin-driver-select">Select Driver</label>
         <select id="signin-driver-select"><option value="">-- Select your name --</option></select>
       </div>
-      <div class="form-group">
-        <label for="signin-driver-manual">Or Type Driver Name (Mobile Fallback)</label>
-        <input type="text" id="signin-driver-manual" placeholder="Type your driver name if list is empty">
-      </div>
       <div id="signed-in-driver-display" style="display:none;" class="muted" style="text-align:center;"></div>
       <button id="signin-confirm-btn" class="btn-primary" type="button" style="margin-top:0;">Sign In to Tablet</button>
       <button id="signin-cancel-btn" class="btn-secondary" type="button" style="margin-top:0; width:100%;">Cancel</button>
@@ -1665,8 +1211,6 @@
         <div id="driver-signed-in-label" class="driver-status-meta">Touch optimized layout for iPad and SIM-enabled fleet tablets</div>
       </div>
       <div class="inline-actions">
-        <select id="driver-heartbeat-tablet" style="min-width: 180px;"></select>
-        <span id="driver-link-status" class="status-pill idle">Link idle</span>
         <span class="status-pill live">Realtime Ready</span>
         <button id="kiosk-exit-btn" type="button" class="kiosk-btn danger">Exit Kiosk</button>
       </div>
@@ -1755,36 +1299,6 @@
       </section>
 
       <section class="card">
-        <h2>Driver GPS Map</h2>
-        <p class="muted" style="margin-bottom: 10px;">Use this panel on mobile to view live GPS and refresh your route map.</p>
-        <div class="gps-readout">
-          <div class="gps-stat">
-            <span class="muted">Latitude</span>
-            <strong id="driver-gps-lat">--</strong>
-          </div>
-          <div class="gps-stat">
-            <span class="muted">Longitude</span>
-            <strong id="driver-gps-lng">--</strong>
-          </div>
-          <div class="gps-stat">
-            <span class="muted">Accuracy</span>
-            <strong id="driver-gps-accuracy">--</strong>
-          </div>
-        </div>
-        <div class="inline-actions" style="margin-top: 12px;">
-          <button type="button" class="btn-primary" onclick="startDriverGpsTracking()" style="width:auto; margin-top:0;">Start Tracking</button>
-          <button type="button" class="btn-secondary" onclick="stopDriverGpsTracking()" style="width:auto; margin-top:0;">Stop</button>
-          <button type="button" class="btn-secondary" onclick="refreshDriverGpsMap()" style="width:auto; margin-top:0;">Refresh Map</button>
-        </div>
-        <div style="margin-top: 10px;">
-          <span id="driver-gps-status" class="status-pill idle">Tracking idle</span>
-          <div id="driver-gps-updated" class="muted" style="margin-top: 8px;">No live position yet.</div>
-        </div>
-        <iframe id="driver-gps-map-frame" class="map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=51.5072,-0.1276&z=11&output=embed" title="Driver GPS map view"></iframe>
-        <ul id="driver-gps-history" class="item-list" style="margin-top: 12px;"></ul>
-      </section>
-
-      <section class="card">
         <h2>Driver Message Window</h2>
         <p class="muted">Manager messages and broadcast task updates appear here.</p>
 
@@ -1831,60 +1345,10 @@
       managerPin: 'fleet_manager_pin',
       routeTrips: 'fleet_route_trips',
       gpsTrail: 'fleet_gps_trail',
-      gpsDeviceLogs: 'fleet_gps_device_logs',
-      messages: 'fleet_messages',
-      driverOutboundMessages: 'fleet_driver_outbound_messages',
-      vehicleReports: 'fleet_vehicle_reports',
-      tabletHeartbeats: 'fleet_tablet_heartbeats',
-      signedInDriver: 'fleet_signed_in_driver'
+      gpsDeviceLogs: 'fleet_gps_device_logs'
     };
-
-    const BACKEND_CONFIG_KEY = 'fleet_firestore_backend_config';
-    const BACKEND_PROFILES_KEY = 'fleet_firestore_backend_profiles';
-    const BACKEND_ACTIVE_PROFILE_KEY = 'fleet_firestore_backend_active_profile';
-    const FIRESTORE_STATE_COLLECTION = 'fleet_trial_state';
-    const FIRESTORE_STATE_DOC = 'main';
-    const DEFAULT_SUPABASE_STATE_TABLE = 'fleet_trial_state';
-    const SUPABASE_STATE_ROW_ID = 'main';
-    const FIRESTORE_SYNC_KEYS = [
-      'drivers',
-      'vehicles',
-      'tablets',
-      'clients',
-      'schedules',
-      'opsConfig',
-      'managerPin',
-      'routeTrips',
-      'gpsTrail',
-      'gpsDeviceLogs',
-      'messages',
-      'driverOutboundMessages',
-      'vehicleReports',
-      'tabletHeartbeats'
-    ];
 
     const DEFAULT_MANAGER_PIN = '1234';
-
-    const backendState = {
-      config: null,
-      profileName: 'Default',
-      provider: 'firebase',
-      app: null,
-      db: null,
-      supabaseClient: null,
-      supabaseChannel: null,
-      ready: false,
-      loading: false,
-      syncingRemote: false,
-      listenerUnsubscribe: null,
-      lastError: ''
-    };
-
-    let firestoreWriteTimer = null;
-    let tabletHeartbeatTimer = null;
-    let tabletHeartbeatWatchdogTimer = null;
-    const TABLET_HEARTBEAT_MS = 15000;
-    const TABLET_OFFLINE_THRESHOLD_MS = 45000;
 
     function loadStore(key, fallback) {
       try {
@@ -1895,761 +1359,15 @@
 
     function saveStore(key, value) {
       try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) {}
-      if (!backendState.syncingRemote && backendState.ready && FIRESTORE_SYNC_KEYS.includes(keyNameFromStoreKey(key))) {
-        queueFirestoreStateWrite();
-      }
-    }
-
-    const AUTH_USERS_KEY = 'fleet_auth_users';
-    const AUTH_SESSION_KEY = 'fleet_auth_session';
-    const DEFAULT_AUTH_USERS = [
-      { username: 'admin', password: 'admin123', role: 'manager', displayName: 'Fleet Manager' }
-    ];
-
-    function normalizeAuthUsers(rawUsers) {
-      if (!Array.isArray(rawUsers)) return [];
-      return rawUsers
-        .filter(user => user && typeof user === 'object')
-        .map(user => ({
-          username: String(user.username || '').trim(),
-          password: String(user.password || ''),
-          role: user.role === 'driver' ? 'driver' : 'manager',
-          displayName: String(user.displayName || user.username || '').trim()
-        }))
-        .filter(user => user.username && user.password);
-    }
-
-    function ensureDefaultAuthUsers() {
-      const existingUsersRaw = loadStore(AUTH_USERS_KEY, []);
-      const existingUsers = normalizeAuthUsers(existingUsersRaw);
-      const hasAdmin = existingUsers.some(user => user.username.toLowerCase() === 'admin' && user.role === 'manager');
-
-      if (!existingUsers.length) {
-        const defaults = DEFAULT_AUTH_USERS.slice();
-        saveStore(AUTH_USERS_KEY, defaults);
-        return defaults;
-      }
-
-      if (!hasAdmin) {
-        const nextUsers = [DEFAULT_AUTH_USERS[0], ...existingUsers];
-        saveStore(AUTH_USERS_KEY, nextUsers);
-        return nextUsers;
-      }
-
-      // Persist normalized records if storage had bad shapes.
-      if (existingUsers.length !== existingUsersRaw.length) {
-        saveStore(AUTH_USERS_KEY, existingUsers);
-      }
-      return existingUsers;
-    }
-
-    function setAuthMode(mode) {
-      const signinTab = document.getElementById('auth-tab-signin');
-      const registerTab = document.getElementById('auth-tab-register');
-      const signinPane = document.getElementById('auth-signin-pane');
-      const registerPane = document.getElementById('auth-register-pane');
-      const isSignIn = mode === 'signin';
-      if (signinTab) signinTab.classList.toggle('active', isSignIn);
-      if (registerTab) registerTab.classList.toggle('active', !isSignIn);
-      if (signinPane) signinPane.classList.toggle('active', isSignIn);
-      if (registerPane) registerPane.classList.toggle('active', !isSignIn);
-      const error = document.getElementById('auth-error');
-      const success = document.getElementById('auth-success');
-      if (error) error.classList.remove('visible');
-      if (success) success.classList.remove('visible');
-    }
-
-    function togglePassword(fieldId) {
-      const input = document.getElementById(fieldId);
-      if (!input) return;
-      input.type = input.type === 'password' ? 'text' : 'password';
-    }
-
-    function showAuthError(text) {
-      const error = document.getElementById('auth-error');
-      const success = document.getElementById('auth-success');
-      if (success) success.classList.remove('visible');
-      if (!error) return;
-      error.textContent = text;
-      error.classList.add('visible');
-    }
-
-    function showAuthSuccess(text) {
-      const error = document.getElementById('auth-error');
-      const success = document.getElementById('auth-success');
-      if (error) error.classList.remove('visible');
-      if (!success) return;
-      success.textContent = text;
-      success.classList.add('visible');
-    }
-
-    function updateSessionChip(session) {
-      const chip = document.getElementById('session-chip');
-      if (!chip) return;
-      if (!session) {
-        chip.textContent = 'Not signed in';
-        return;
-      }
-      chip.textContent = `${session.displayName || session.username} · ${session.role}`;
-    }
-
-    function openAppForSession(session) {
-      const appShell = document.getElementById('app-shell');
-      const authGate = document.getElementById('auth-gate');
-      if (appShell) appShell.classList.remove('is-hidden');
-      if (authGate) authGate.style.display = 'none';
-      updateSessionChip(session);
-
-      const navButtons = document.querySelectorAll('.nav-btn');
-      if (session.role === 'driver') {
-        signedInDriver = session.displayName || session.username;
-        saveStore(STORE_KEYS.signedInDriver, signedInDriver);
-        const driverBtn = navButtons[1];
-        if (driverBtn) {
-          switchView('driver-view', driverBtn);
-        }
-      } else {
-        const managerBtn = navButtons[0];
-        if (managerBtn) {
-          switchView('manager-view', managerBtn);
-        }
-      }
-    }
-
-    function signOutApp() {
-      stopTabletHeartbeat();
-      signedInDriver = null;
-      saveStore(STORE_KEYS.signedInDriver, null);
-      saveStore(AUTH_SESSION_KEY, null);
-      updateSessionChip(null);
-      const authGate = document.getElementById('auth-gate');
-      const appShell = document.getElementById('app-shell');
-      if (authGate) authGate.style.display = 'flex';
-      if (appShell) appShell.classList.add('is-hidden');
-      setAuthMode('signin');
-    }
-
-    function handleAuthSignIn(event) {
-      event.preventDefault();
-      const username = document.getElementById('auth-username')?.value.trim();
-      const password = document.getElementById('auth-password')?.value;
-      const role = document.getElementById('auth-role')?.value;
-      if (!username || !password || !role) {
-        showAuthError('Enter username, password, and role to sign in.');
-        return;
-      }
-
-      const users = ensureDefaultAuthUsers();
-      const user = users.find(item =>
-        item.username.toLowerCase() === username.toLowerCase() &&
-        item.password === password &&
-        item.role === role
-      );
-
-      const fallbackAdminMatch =
-        username.toLowerCase() === 'admin' &&
-        password === 'admin123' &&
-        role === 'manager';
-
-      if (!user && !fallbackAdminMatch) {
-        showAuthError('Invalid username/password/role.');
-        return;
-      }
-
-      const resolvedUser = user || DEFAULT_AUTH_USERS[0];
-
-      const session = {
-        username: resolvedUser.username,
-        role: resolvedUser.role,
-        displayName: resolvedUser.displayName || resolvedUser.username,
-        signedInAt: new Date().toISOString()
-      };
-      saveStore(AUTH_SESSION_KEY, session);
-      showAuthSuccess('Sign-in successful. Loading dashboard...');
-      openAppForSession(session);
-    }
-
-    function handleAuthRegister(event) {
-      event.preventDefault();
-      const displayName = document.getElementById('register-display-name')?.value.trim();
-      const username = document.getElementById('register-username')?.value.trim();
-      const role = document.getElementById('register-role')?.value;
-      const password = document.getElementById('register-password')?.value;
-      const confirmPassword = document.getElementById('register-password-confirm')?.value;
-
-      if (!displayName || !username || !role || !password || !confirmPassword) {
-        showAuthError('Complete all registration fields.');
-        return;
-      }
-      if (password !== confirmPassword) {
-        showAuthError('Passwords do not match.');
-        return;
-      }
-
-      const users = ensureDefaultAuthUsers();
-      const exists = users.some(item => item.username.toLowerCase() === username.toLowerCase());
-      if (exists) {
-        showAuthError('Username already exists. Choose another one.');
-        return;
-      }
-
-      users.push({ username, password, role, displayName });
-      saveStore(AUTH_USERS_KEY, users);
-      showAuthSuccess('Account created. You can now sign in.');
-      document.getElementById('auth-register-pane')?.reset();
-      setAuthMode('signin');
-      const signinUser = document.getElementById('auth-username');
-      const signinRole = document.getElementById('auth-role');
-      if (signinUser) signinUser.value = username;
-      if (signinRole) signinRole.value = role;
-    }
-
-    function initAuthGate() {
-      ensureDefaultAuthUsers();
-      const signinForm = document.getElementById('auth-signin-pane');
-      const registerForm = document.getElementById('auth-register-pane');
-      if (signinForm) signinForm.addEventListener('submit', handleAuthSignIn);
-      if (registerForm) registerForm.addEventListener('submit', handleAuthRegister);
-
-      const session = loadStore(AUTH_SESSION_KEY, null);
-      if (session?.username && session?.role) {
-        openAppForSession(session);
-      } else {
-        const authGate = document.getElementById('auth-gate');
-        const appShell = document.getElementById('app-shell');
-        if (authGate) authGate.style.display = 'flex';
-        if (appShell) appShell.classList.add('is-hidden');
-        updateSessionChip(null);
-      }
-    }
-
-    function resetAuthAccess() {
-      saveStore(AUTH_USERS_KEY, DEFAULT_AUTH_USERS.slice());
-      saveStore(AUTH_SESSION_KEY, null);
-      const signinUser = document.getElementById('auth-username');
-      const signinPassword = document.getElementById('auth-password');
-      const signinRole = document.getElementById('auth-role');
-      if (signinUser) signinUser.value = 'admin';
-      if (signinPassword) signinPassword.value = 'admin123';
-      if (signinRole) signinRole.value = 'manager';
-      setAuthMode('signin');
-      showAuthSuccess('Login reset complete. Use admin / admin123 as Manager.');
-    }
-
-    function enterDemoApp() {
-      const session = {
-        username: 'admin',
-        role: 'manager',
-        displayName: 'Fleet Manager',
-        signedInAt: new Date().toISOString()
-      };
-      saveStore(AUTH_SESSION_KEY, session);
-      openAppForSession(session);
-    }
-
-    function loadBackendConfig() {
-      const profiles = loadBackendProfiles();
-      const activeProfileName = loadStore(BACKEND_ACTIVE_PROFILE_KEY, 'Default');
-      const activeProfile = profiles.find(profile => profile.name === activeProfileName) || profiles[0] || null;
-      if (activeProfile) {
-        backendState.profileName = activeProfile.name || 'Default';
-        saveStore(BACKEND_ACTIVE_PROFILE_KEY, backendState.profileName);
-        return normalizeBackendConfig(activeProfile);
-      }
-
-      const fallback = loadStore(BACKEND_CONFIG_KEY, {
-        enabled: false,
-        apiKey: '',
-        authDomain: '',
-        projectId: '',
-        appId: '',
-        messagingSenderId: ''
-      });
-      backendState.profileName = fallback.profileName || 'Default';
-      return normalizeBackendConfig(fallback);
-    }
-
-    function loadBackendProfiles() {
-      return loadStore(BACKEND_PROFILES_KEY, []);
-    }
-
-    function saveBackendProfiles(profiles) {
-      saveStore(BACKEND_PROFILES_KEY, profiles);
-    }
-
-    function normalizeBackendConfig(rawConfig) {
-      return {
-        provider: rawConfig?.provider === 'supabase' ? 'supabase' : 'firebase',
-        enabled: Boolean(rawConfig?.enabled),
-        apiKey: rawConfig?.apiKey || '',
-        authDomain: rawConfig?.authDomain || '',
-        projectId: rawConfig?.projectId || '',
-        appId: rawConfig?.appId || '',
-        messagingSenderId: rawConfig?.messagingSenderId || '',
-        supabaseUrl: rawConfig?.supabaseUrl || '',
-        supabaseAnonKey: rawConfig?.supabaseAnonKey || '',
-        supabaseTableName: rawConfig?.supabaseTableName || DEFAULT_SUPABASE_STATE_TABLE,
-        profileName: rawConfig?.profileName || 'Default'
-      };
-    }
-
-    function saveBackendConfig(nextConfig) {
-      const profileNameInput = document.getElementById('firestore-profile-name');
-      const profileName = (nextConfig.profileName || profileNameInput?.value || backendState.profileName || 'Default').trim() || 'Default';
-      backendState.profileName = profileName;
-      backendState.config = normalizeBackendConfig({ ...nextConfig, profileName });
-      const profiles = loadBackendProfiles();
-      const existingIdx = profiles.findIndex(profile => profile.name === profileName);
-      const profileRecord = { name: profileName, ...backendState.config };
-      if (existingIdx >= 0) {
-        profiles[existingIdx] = profileRecord;
-      } else {
-        profiles.unshift(profileRecord);
-      }
-      saveBackendProfiles(profiles);
-      saveStore(BACKEND_CONFIG_KEY, profileRecord);
-      saveStore(BACKEND_ACTIVE_PROFILE_KEY, profileName);
-      populateBackendConfigForm();
-      refreshBackendProfileSelect();
-      updateBackendStatus();
-    }
-
-    function collectBackendConfigFromForm() {
-      const profileName = document.getElementById('firestore-profile-name')?.value.trim() || backendState.profileName || 'Default';
-      const provider = document.getElementById('backend-provider')?.value || 'firebase';
-      const enabled = document.getElementById('firestore-enabled')?.value === 'true';
-      return normalizeBackendConfig({
-        profileName,
-        provider,
-        enabled,
-        apiKey: document.getElementById('firestore-api-key')?.value.trim() || '',
-        authDomain: document.getElementById('firestore-auth-domain')?.value.trim() || '',
-        projectId: document.getElementById('firestore-project-id')?.value.trim() || '',
-        appId: document.getElementById('firestore-app-id')?.value.trim() || '',
-        messagingSenderId: document.getElementById('firestore-messaging-sender-id')?.value.trim() || '',
-        supabaseUrl: document.getElementById('supabase-url')?.value.trim() || '',
-        supabaseAnonKey: document.getElementById('supabase-anon-key')?.value.trim() || '',
-        supabaseTableName: document.getElementById('supabase-table-name')?.value.trim() || DEFAULT_SUPABASE_STATE_TABLE
-      });
-    }
-
-    function refreshBackendProfileSelect() {
-      const select = document.getElementById('firestore-profile-select');
-      if (!select) return;
-      const profiles = loadBackendProfiles();
-      select.innerHTML = profiles.length ? profiles.map(profile => `
-        <option value="${escapeHtml(profile.name)}">${escapeHtml(profile.name)}</option>
-      `).join('') : '<option value="">No saved profiles</option>';
-      select.value = backendState.profileName || loadStore(BACKEND_ACTIVE_PROFILE_KEY, 'Default');
-    }
-
-    function wireBackendProfileSelect() {
-      const select = document.getElementById('firestore-profile-select');
-      if (!select) return;
-      select.onchange = function() {
-        loadSelectedBackendProfile();
-      };
-    }
-
-    function populateBackendConfigForm() {
-      const config = backendState.config || loadBackendConfig();
-      const profileNameInput = document.getElementById('firestore-profile-name');
-      const providerSelect = document.getElementById('backend-provider');
-      const enabledSelect = document.getElementById('firestore-enabled');
-      const apiKeyInput = document.getElementById('firestore-api-key');
-      const authDomainInput = document.getElementById('firestore-auth-domain');
-      const projectIdInput = document.getElementById('firestore-project-id');
-      const appIdInput = document.getElementById('firestore-app-id');
-      const messagingSenderIdInput = document.getElementById('firestore-messaging-sender-id');
-      const supabaseUrlInput = document.getElementById('supabase-url');
-      const supabaseAnonKeyInput = document.getElementById('supabase-anon-key');
-      const supabaseTableNameInput = document.getElementById('supabase-table-name');
-      if (profileNameInput) profileNameInput.value = config.profileName || 'Default';
-      if (providerSelect) providerSelect.value = config.provider || 'firebase';
-      if (enabledSelect) enabledSelect.value = config.enabled ? 'true' : 'false';
-      if (apiKeyInput) apiKeyInput.value = config.apiKey || '';
-      if (authDomainInput) authDomainInput.value = config.authDomain || '';
-      if (projectIdInput) projectIdInput.value = config.projectId || '';
-      if (appIdInput) appIdInput.value = config.appId || '';
-      if (messagingSenderIdInput) messagingSenderIdInput.value = config.messagingSenderId || '';
-      if (supabaseUrlInput) supabaseUrlInput.value = config.supabaseUrl || '';
-      if (supabaseAnonKeyInput) supabaseAnonKeyInput.value = config.supabaseAnonKey || '';
-      if (supabaseTableNameInput) supabaseTableNameInput.value = config.supabaseTableName || DEFAULT_SUPABASE_STATE_TABLE;
-      refreshBackendProfileSelect();
-    }
-
-    function loadSelectedBackendProfile() {
-      const select = document.getElementById('firestore-profile-select');
-      const selectedName = select?.value;
-      const profiles = loadBackendProfiles();
-      const profile = profiles.find(item => item.name === selectedName);
-      if (!profile) {
-        backendState.lastError = 'Select a saved profile first.';
-        updateBackendStatus();
-        return;
-      }
-      backendState.profileName = profile.name;
-      backendState.config = normalizeBackendConfig(profile);
-      saveStore(BACKEND_ACTIVE_PROFILE_KEY, profile.name);
-      saveStore(BACKEND_CONFIG_KEY, profile);
-      populateBackendConfigForm();
-      updateBackendStatus('Profile loaded.');
-      if (backendState.config.enabled) {
-        connectBackendTrial();
-      }
-    }
-
-    function deleteSelectedBackendProfile() {
-      const select = document.getElementById('firestore-profile-select');
-      const selectedName = select?.value;
-      if (!selectedName) return;
-      const profiles = loadBackendProfiles().filter(profile => profile.name !== selectedName);
-      saveBackendProfiles(profiles);
-      backendState.profileName = profiles[0]?.name || 'Default';
-      backendState.config = profiles[0] ? normalizeBackendConfig(profiles[0]) : normalizeBackendConfig({ profileName: backendState.profileName });
-      saveStore(BACKEND_ACTIVE_PROFILE_KEY, backendState.profileName);
-      saveStore(BACKEND_CONFIG_KEY, backendState.config);
-      populateBackendConfigForm();
-      updateBackendStatus('Profile deleted.');
-    }
-
-    function keyNameFromStoreKey(storeKey) {
-      return Object.keys(STORE_KEYS).find(name => STORE_KEYS[name] === storeKey) || '';
-    }
-
-    function getSyncPayload() {
-      return {
-        schemaVersion: 1,
-        updatedAt: new Date().toISOString(),
-        drivers,
-        vehicles,
-        tablets,
-        clients,
-        schedules,
-        opsConfig,
-        managerPin: loadStore(STORE_KEYS.managerPin, DEFAULT_MANAGER_PIN),
-        routeTrips,
-        gpsTrail,
-        gpsDeviceLogs,
-        messages,
-        driverOutboundMessages,
-        vehicleReports,
-        tabletHeartbeats
-      };
-    }
-
-    function renderAllDataViews() {
-      populateContactSelects();
-      populateSignInSelect();
-      renderClients();
-      renderDrivers();
-      renderVehicles();
-      renderTablets();
-      renderSchedules();
-      renderMessages();
-      renderDriverMessages();
-      renderManagerDriverUpdates();
-      renderGpsHistory();
-      renderGpsDeviceLogs();
-      renderRouteTripLogs();
-      updateRouteTripStatus();
-      renderVehicleReports();
-      renderDriverTabletList();
-      filterManagerModules();
-      updateGpsDeviceSummary();
-      updateBackendStatus();
-    }
-
-    function updateBackendStatus(message) {
-      const status = document.getElementById('firestore-status');
-      if (status) {
-        const stateText = backendState.ready ? 'Connected' : backendState.loading ? 'Connecting' : 'Offline';
-        const providerLabel = backendState.config?.provider === 'supabase' ? 'Supabase' : 'Firestore';
-        const detailText = message || backendState.lastError || (backendState.config?.enabled ? `Waiting for ${providerLabel} connection.` : 'Local mode only.');
-        status.textContent = `${stateText}: ${detailText}`;
-      }
-      const schemaPreview = document.getElementById('firestore-schema-preview');
-      if (schemaPreview) {
-        const isSupabase = backendState.config?.provider === 'supabase';
-        schemaPreview.innerHTML = `
-          <strong>${isSupabase ? 'Supabase' : 'Firestore'} trial structure</strong><br>
-          <span class="mono">${isSupabase ? (backendState.config?.supabaseTableName || DEFAULT_SUPABASE_STATE_TABLE) + ' / id=main' : 'fleet_trial_state/main'}</span><br>
-          stores drivers, vehicles, tablets, clients, schedules, messages, GPS logs, route trips, and reports in one state payload for quick trial sync.<br>
-          ${isSupabase ? 'Set RLS policies for shared testing access on your table.' : 'Access is intended for authenticated Google/Firebase users only.'}
-        `;
-      }
-      const button = document.getElementById('firestore-connect-btn');
-      if (button) {
-        const providerLabel = backendState.config?.provider === 'supabase' ? 'Supabase' : 'Firestore';
-        button.textContent = backendState.ready ? `Reconnect ${providerLabel}` : `Connect ${providerLabel}`;
-      }
-    }
-
-    function disconnectBackendListeners() {
-      if (backendState.listenerUnsubscribe) {
-        backendState.listenerUnsubscribe();
-        backendState.listenerUnsubscribe = null;
-      }
-      if (backendState.supabaseChannel && backendState.supabaseClient) {
-        backendState.supabaseClient.removeChannel(backendState.supabaseChannel);
-        backendState.supabaseChannel = null;
-      }
-    }
-
-    async function connectBackendTrial() {
-      const formConfig = collectBackendConfigFromForm();
-      if (formConfig) {
-        backendState.config = formConfig;
-        backendState.profileName = formConfig.profileName || backendState.profileName || 'Default';
-      } else {
-        backendState.config = backendState.config || loadBackendConfig();
-      }
-      backendState.provider = backendState.config.provider || 'firebase';
-      if (backendState.provider === 'supabase') {
-        await connectSupabaseTrial();
-        return;
-      }
-      await connectFirestoreTrial();
-    }
-
-    function loadScriptOnce(src, id) {
-      return new Promise((resolve, reject) => {
-        if (document.getElementById(id)) {
-          resolve();
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = src;
-        script.id = id;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error(`Failed to load ${src}`));
-        document.head.appendChild(script);
-      });
-    }
-
-    function applyRemoteState(remoteState) {
-      backendState.syncingRemote = true;
-      try {
-        if (Array.isArray(remoteState.drivers)) { drivers.splice(0, drivers.length, ...remoteState.drivers); saveStore(STORE_KEYS.drivers, drivers); }
-        if (Array.isArray(remoteState.vehicles)) { vehicles.splice(0, vehicles.length, ...remoteState.vehicles); saveStore(STORE_KEYS.vehicles, vehicles); }
-        if (Array.isArray(remoteState.tablets)) { tablets.splice(0, tablets.length, ...remoteState.tablets); saveStore(STORE_KEYS.tablets, tablets); }
-        if (Array.isArray(remoteState.clients)) { clients.splice(0, clients.length, ...remoteState.clients); saveStore(STORE_KEYS.clients, clients); }
-        if (Array.isArray(remoteState.schedules)) { schedules.splice(0, schedules.length, ...remoteState.schedules); saveStore(STORE_KEYS.schedules, schedules); }
-        if (remoteState.opsConfig && typeof remoteState.opsConfig === 'object') { opsConfig.email = remoteState.opsConfig.email || ''; saveStore(STORE_KEYS.opsConfig, opsConfig); }
-        if (typeof remoteState.managerPin === 'string' && remoteState.managerPin.trim()) { saveStore(STORE_KEYS.managerPin, remoteState.managerPin.trim()); }
-        if (Array.isArray(remoteState.routeTrips)) { routeTrips.splice(0, routeTrips.length, ...remoteState.routeTrips); saveStore(STORE_KEYS.routeTrips, routeTrips); }
-        if (Array.isArray(remoteState.gpsTrail)) { gpsTrail.splice(0, gpsTrail.length, ...remoteState.gpsTrail); saveStore(STORE_KEYS.gpsTrail, gpsTrail); }
-        if (Array.isArray(remoteState.gpsDeviceLogs)) { gpsDeviceLogs.splice(0, gpsDeviceLogs.length, ...remoteState.gpsDeviceLogs); saveStore(STORE_KEYS.gpsDeviceLogs, gpsDeviceLogs); }
-        if (Array.isArray(remoteState.messages)) { messages.splice(0, messages.length, ...remoteState.messages); saveStore(STORE_KEYS.messages, messages); }
-        if (Array.isArray(remoteState.driverOutboundMessages)) { driverOutboundMessages.splice(0, driverOutboundMessages.length, ...remoteState.driverOutboundMessages); saveStore(STORE_KEYS.driverOutboundMessages, driverOutboundMessages); }
-        if (Array.isArray(remoteState.vehicleReports)) { vehicleReports.splice(0, vehicleReports.length, ...remoteState.vehicleReports); saveStore(STORE_KEYS.vehicleReports, vehicleReports); }
-        if (Array.isArray(remoteState.tabletHeartbeats)) { tabletHeartbeats.splice(0, tabletHeartbeats.length, ...remoteState.tabletHeartbeats); saveStore(STORE_KEYS.tabletHeartbeats, tabletHeartbeats); }
-      } finally {
-        backendState.syncingRemote = false;
-      }
-      renderAllDataViews();
-    }
-
-    async function connectFirestoreTrial() {
-      if (backendState.loading) return;
-      backendState.config = collectBackendConfigFromForm() || backendState.config || loadBackendConfig();
-      backendState.provider = 'firebase';
-      if (!backendState.config.enabled) {
-        backendState.lastError = 'Enable Trial Sync first.';
-        updateBackendStatus();
-        return;
-      }
-      if (!backendState.config.apiKey || !backendState.config.authDomain || !backendState.config.projectId || !backendState.config.appId) {
-        backendState.lastError = 'Add the Firebase web app config first.';
-        updateBackendStatus();
-        return;
-      }
-
-      backendState.loading = true;
-      backendState.lastError = '';
-      updateBackendStatus('Loading Firebase SDK...');
-
-      try {
-        disconnectBackendListeners();
-        backendState.supabaseClient = null;
-        await loadScriptOnce('https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js', 'firebase-app-compat-sdk');
-        await loadScriptOnce('https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js', 'firebase-firestore-compat-sdk');
-
-        const firebaseConfig = {
-          apiKey: backendState.config.apiKey,
-          authDomain: backendState.config.authDomain,
-          projectId: backendState.config.projectId,
-          appId: backendState.config.appId,
-          messagingSenderId: backendState.config.messagingSenderId || ''
-        };
-
-        if (!window.firebase) {
-          throw new Error('Firebase SDK did not initialize.');
-        }
-
-        if (!window.firebase.apps.length) {
-          backendState.app = window.firebase.initializeApp(firebaseConfig);
-        } else {
-          backendState.app = window.firebase.app();
-        }
-
-        backendState.db = window.firebase.firestore();
-        backendState.ready = true;
-        updateBackendStatus('Firestore connected.');
-        startFirestoreListener();
-        queueFirestoreStateWrite();
-      } catch (error) {
-        backendState.ready = false;
-        backendState.lastError = error.message || 'Firestore connection failed.';
-        updateBackendStatus();
-      } finally {
-        backendState.loading = false;
-      }
-    }
-
-    function startFirestoreListener() {
-      if (!backendState.db) return;
-      const ref = backendState.db.collection(FIRESTORE_STATE_COLLECTION).doc(FIRESTORE_STATE_DOC);
-      disconnectBackendListeners();
-      backendState.listenerUnsubscribe = ref.onSnapshot(snapshot => {
-        if (!snapshot.exists) {
-          queueFirestoreStateWrite();
-          return;
-        }
-        applyRemoteState(snapshot.data() || {});
-      }, error => {
-        backendState.ready = false;
-        backendState.lastError = error.message || 'Firestore listener failed.';
-        updateBackendStatus();
-      });
-    }
-
-    function queueFirestoreStateWrite() {
-      if (!backendState.ready || backendState.syncingRemote) return;
-      if (firestoreWriteTimer) return;
-      firestoreWriteTimer = window.setTimeout(async () => {
-        firestoreWriteTimer = null;
-        if (!backendState.ready || backendState.syncingRemote) return;
-        try {
-          if (backendState.provider === 'supabase' && backendState.supabaseClient) {
-            const tableName = backendState.config?.supabaseTableName || DEFAULT_SUPABASE_STATE_TABLE;
-            const { error } = await backendState.supabaseClient
-              .from(tableName)
-              .upsert({
-                id: SUPABASE_STATE_ROW_ID,
-                payload: getSyncPayload(),
-                updated_at: new Date().toISOString()
-              }, { onConflict: 'id' });
-            if (error) throw error;
-            backendState.lastError = '';
-            updateBackendStatus('Supabase synced.');
-            return;
-          }
-
-          if (!backendState.db) return;
-          await backendState.db.collection(FIRESTORE_STATE_COLLECTION).doc(FIRESTORE_STATE_DOC).set(getSyncPayload(), { merge: true });
-          backendState.lastError = '';
-          updateBackendStatus('Firestore synced.');
-        } catch (error) {
-          backendState.lastError = error.message || (backendState.provider === 'supabase' ? 'Supabase sync failed.' : 'Firestore sync failed.');
-          updateBackendStatus();
-        }
-      }, 700);
-    }
-
-    async function connectSupabaseTrial() {
-      if (backendState.loading) return;
-      backendState.config = collectBackendConfigFromForm() || backendState.config || loadBackendConfig();
-      backendState.provider = 'supabase';
-
-      if (!backendState.config.enabled) {
-        backendState.lastError = 'Enable Trial Sync first.';
-        updateBackendStatus();
-        return;
-      }
-      if (!backendState.config.supabaseUrl || !backendState.config.supabaseAnonKey) {
-        backendState.lastError = 'Add Supabase URL and anon key first.';
-        updateBackendStatus();
-        return;
-      }
-
-      backendState.loading = true;
-      backendState.lastError = '';
-      updateBackendStatus('Loading Supabase SDK...');
-
-      try {
-        disconnectBackendListeners();
-        backendState.db = null;
-        backendState.app = null;
-
-        await loadScriptOnce('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', 'supabase-js-sdk');
-        if (!window.supabase?.createClient) {
-          throw new Error('Supabase SDK did not initialize.');
-        }
-
-        backendState.supabaseClient = window.supabase.createClient(
-          backendState.config.supabaseUrl,
-          backendState.config.supabaseAnonKey
-        );
-
-        backendState.ready = true;
-        await startSupabaseListener();
-        queueFirestoreStateWrite();
-        updateBackendStatus('Supabase connected.');
-      } catch (error) {
-        backendState.ready = false;
-        backendState.lastError = error.message || 'Supabase connection failed.';
-        updateBackendStatus();
-      } finally {
-        backendState.loading = false;
-      }
-    }
-
-    async function startSupabaseListener() {
-      const client = backendState.supabaseClient;
-      if (!client) return;
-      const tableName = backendState.config?.supabaseTableName || DEFAULT_SUPABASE_STATE_TABLE;
-
-      disconnectBackendListeners();
-
-      const { data, error } = await client
-        .from(tableName)
-        .select('payload')
-        .eq('id', SUPABASE_STATE_ROW_ID)
-        .maybeSingle();
-
-      if (error) {
-        throw error;
-      }
-
-      if (data?.payload) {
-        applyRemoteState(data.payload);
-      }
-
-      backendState.supabaseChannel = client
-        .channel(`fleet-sync-${tableName}`)
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: tableName,
-          filter: `id=eq.${SUPABASE_STATE_ROW_ID}`
-        }, payload => {
-          const remotePayload = payload?.new?.payload;
-          if (remotePayload) {
-            applyRemoteState(remotePayload);
-          }
-        })
-        .subscribe();
     }
 
     const drivers   = loadStore(STORE_KEYS.drivers, []);
     const vehicles  = loadStore(STORE_KEYS.vehicles, []);
     const tablets   = loadStore(STORE_KEYS.tablets, []);
     const schedules = loadStore(STORE_KEYS.schedules, []);
-    const messages  = loadStore(STORE_KEYS.messages, []);
-    const driverOutboundMessages = loadStore(STORE_KEYS.driverOutboundMessages, []);
-    const vehicleReports = loadStore(STORE_KEYS.vehicleReports, []);
-    const tabletHeartbeats = loadStore(STORE_KEYS.tabletHeartbeats, []);
+    const messages  = [];
+    const driverOutboundMessages = [];
+    const vehicleReports = [];
     const gpsDeviceLogs  = loadStore(STORE_KEYS.gpsDeviceLogs, []);
     const opsConfig = loadStore(STORE_KEYS.opsConfig, { email: '' });
     const routeTrips = loadStore(STORE_KEYS.routeTrips, []);
@@ -2657,8 +1375,6 @@
       { id: 1, name: 'Robert Vance', status: 'VIP',    prefs: 'Prefers front seat, flight BA123' },
       { id: 2, name: 'Alice Smith',  status: 'NORMAL', prefs: 'Standard pickup' }
     ]);
-
-    backendState.config = loadBackendConfig();
 
     let gpsWatchId = null;
     let speechRecognition = null;
@@ -2759,128 +1475,6 @@
       const gpsTabletId = document.getElementById('gps-tablet-select')?.value;
       const selectedTablet = tablets.find(tablet => tablet.id === gpsTabletId);
       return selectedTablet ? selectedTablet.tabletId : 'UNKNOWN-TABLET';
-    }
-
-    function getSelectedHeartbeatTablet() {
-      const picker = document.getElementById('driver-heartbeat-tablet');
-      if (!picker) return null;
-      const selectedId = picker.value;
-      return tablets.find(tablet => String(tablet.id) === String(selectedId)) || null;
-    }
-
-    function resolveHeartbeatTablet() {
-      const selected = getSelectedHeartbeatTablet();
-      if (selected) return selected;
-      const gpsTabletId = document.getElementById('gps-tablet-select')?.value;
-      if (gpsTabletId) {
-        const tracked = tablets.find(tablet => String(tablet.id) === String(gpsTabletId));
-        if (tracked) return tracked;
-      }
-      return tablets[0] || null;
-    }
-
-    function upsertTabletHeartbeat(tabletRecord, driverName) {
-      if (!tabletRecord) return;
-      const now = Date.now();
-      const vehicle = vehicles.find(item => item.id === tabletRecord.vehicleId);
-      const entry = {
-        tabletId: tabletRecord.id,
-        tabletCode: tabletRecord.tabletId,
-        simPhone: tabletRecord.simPhone || 'Unknown',
-        vehicleName: vehicle ? getVehicleLabel(vehicle) : 'Unassigned vehicle',
-        driverName: driverName || signedInDriver || 'Unassigned driver',
-        lastSeenTs: now,
-        lastSeen: new Date(now).toLocaleString()
-      };
-      const idx = tabletHeartbeats.findIndex(item => String(item.tabletId) === String(tabletRecord.id));
-      if (idx >= 0) {
-        tabletHeartbeats[idx] = { ...tabletHeartbeats[idx], ...entry };
-      } else {
-        tabletHeartbeats.unshift(entry);
-      }
-      tabletHeartbeats.splice(30);
-      saveStore(STORE_KEYS.tabletHeartbeats, tabletHeartbeats);
-      renderTabletLinkStatus();
-      updateDriverLinkStatus('Link live');
-    }
-
-    function updateDriverLinkStatus(text, isLive) {
-      const pill = document.getElementById('driver-link-status');
-      if (!pill) return;
-      pill.textContent = text;
-      pill.className = `status-pill ${isLive ? 'live' : 'idle'}`;
-    }
-
-    function renderTabletLinkStatus() {
-      const list = document.getElementById('tablet-link-status-list');
-      const alert = document.getElementById('tablet-link-alert');
-      if (!list || !alert) return;
-      const now = Date.now();
-      const rows = tabletHeartbeats.slice().sort((a, b) => (b.lastSeenTs || 0) - (a.lastSeenTs || 0));
-      const offlineRows = rows.filter(item => !item.lastSeenTs || now - item.lastSeenTs > TABLET_OFFLINE_THRESHOLD_MS);
-
-      alert.textContent = offlineRows.length
-        ? `${offlineRows.length} tablet link alert(s): connection stale for more than ${Math.round(TABLET_OFFLINE_THRESHOLD_MS / 1000)}s.`
-        : 'No tablet heartbeat alerts.';
-
-      list.innerHTML = rows.length ? rows.map(item => {
-        const isOnline = Boolean(item.lastSeenTs) && (now - item.lastSeenTs) <= TABLET_OFFLINE_THRESHOLD_MS;
-        const sinceSeconds = item.lastSeenTs ? Math.max(0, Math.round((now - item.lastSeenTs) / 1000)) : null;
-        return `
-          <li class="item-card stack">
-            <div style="display:flex;justify-content:space-between;gap:12px;width:100%;align-items:flex-start;">
-              <div>
-                <strong>${escapeHtml(item.tabletCode || 'Unknown tablet')}</strong>
-                <div class="muted">Driver: ${escapeHtml(item.driverName || 'Unassigned driver')}</div>
-                <div class="muted">SIM: <span class="mono">${escapeHtml(item.simPhone || 'Unknown')}</span> | Vehicle: ${escapeHtml(item.vehicleName || 'Unassigned vehicle')}</div>
-                <div class="muted">Last seen: ${escapeHtml(item.lastSeen || 'Never')}</div>
-              </div>
-              <span class="badge ${isOnline ? 'badge-success' : 'badge-warning'}">${isOnline ? `Online (${sinceSeconds}s)` : 'Offline'}</span>
-            </div>
-          </li>
-        `;
-      }).join('') : '<li class="item-card"><div><strong>No tablet heartbeat records yet.</strong><br><small class="muted">Open the app in tablet/driver mode to start link pings.</small></div></li>';
-    }
-
-    function populateHeartbeatTabletSelect() {
-      const picker = document.getElementById('driver-heartbeat-tablet');
-      if (!picker) return;
-      const previous = picker.value;
-      picker.innerHTML = tablets.length
-        ? tablets.map(tablet => `<option value="${tablet.id}">${escapeHtml(getTabletLabel(tablet))}</option>`).join('')
-        : '<option value="">No tablets</option>';
-      if (previous && picker.querySelector(`option[value="${previous}"]`)) {
-        picker.value = previous;
-      }
-      if (!picker.value && tablets[0]) {
-        picker.value = tablets[0].id;
-      }
-    }
-
-    function sendTabletHeartbeat() {
-      const tablet = resolveHeartbeatTablet();
-      if (!tablet) {
-        updateDriverLinkStatus('No tablet selected', false);
-        return;
-      }
-      upsertTabletHeartbeat(tablet, signedInDriver || 'Unassigned driver');
-    }
-
-    function startTabletHeartbeat() {
-      stopTabletHeartbeat();
-      sendTabletHeartbeat();
-      tabletHeartbeatTimer = window.setInterval(sendTabletHeartbeat, TABLET_HEARTBEAT_MS);
-      if (!tabletHeartbeatWatchdogTimer) {
-        tabletHeartbeatWatchdogTimer = window.setInterval(renderTabletLinkStatus, 5000);
-      }
-    }
-
-    function stopTabletHeartbeat() {
-      if (tabletHeartbeatTimer) {
-        clearInterval(tabletHeartbeatTimer);
-        tabletHeartbeatTimer = null;
-      }
-      updateDriverLinkStatus('Link idle', false);
     }
 
     function getTrackedDriverName(selectedTablet) {
@@ -3178,7 +1772,6 @@
         ? schedules.map(schedule => `<option value="${schedule.id}">${escapeHtml(getTaskLabel(schedule))}</option>`).join('')
         : '<option value="">No trips or tours</option>';
 
-      populateHeartbeatTabletSelect();
       updateGpsDeviceSummary();
     }
 
@@ -3218,10 +1811,8 @@
     function managerSignInDriverByName(name) {
       if (!name) return;
       signedInDriver = name;
-      saveStore(STORE_KEYS.signedInDriver, signedInDriver);
       document.getElementById('driver-signed-in-label').textContent =
         `Signed in as: ${name} · Touch optimized for iPad & SIM tablets`;
-      startTabletHeartbeat();
       const managerSelect = document.getElementById('manager-driver-signin-select');
       if (managerSelect) managerSelect.value = name;
       const driverNavBtn = document.querySelectorAll('.nav-btn')[1];
@@ -3250,27 +1841,20 @@
       populateSignInSelect();
       const overlay = document.getElementById('driver-signin-overlay');
       const error = document.getElementById('signin-error');
-      const manualInput = document.getElementById('signin-driver-manual');
       error.classList.remove('visible');
-      if (manualInput) manualInput.value = '';
       overlay.classList.add('visible');
 
       document.getElementById('signin-confirm-btn').onclick = function() {
         const select = document.getElementById('signin-driver-select');
-        const dropdownName = select.value;
-        const manualName = manualInput?.value?.trim() || '';
-        const name = dropdownName || manualName;
+        const name = select.value;
         if (!name) {
-          error.textContent = 'Select a registered driver or type your driver name to continue.';
           error.classList.add('visible');
           return;
         }
         signedInDriver = name;
-        saveStore(STORE_KEYS.signedInDriver, signedInDriver);
         overlay.classList.remove('visible');
         document.getElementById('driver-signed-in-label').textContent =
           `Signed in as: ${name} · Touch optimized for iPad & SIM tablets`;
-        startTabletHeartbeat();
         if (onSuccess) onSuccess();
       };
 
@@ -3323,12 +1907,7 @@
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(viewId).classList.add('active');
       element.classList.add('active');
-      if (viewId === 'driver-view') {
-        renderDriverTabletList();
-        startTabletHeartbeat();
-      } else {
-        stopTabletHeartbeat();
-      }
+      if (viewId === 'driver-view') renderDriverTabletList();
       if (viewId === 'manager-view') filterManagerModules();
     }
 
@@ -3398,7 +1977,6 @@
         </li>
       `).join('') || '<li class="item-card"><div><strong>No clients saved yet.</strong></div></li>';
       populateContactSelects();
-      renderDriverTabletList();
     }
 
     document.getElementById('message-recipient-type').addEventListener('change', populateContactSelects);
@@ -3508,48 +2086,28 @@
       const pickupTime = document.getElementById('schedule-pickup-time').value;
       const deliveryTime = document.getElementById('schedule-delivery-time').value;
       const location = document.getElementById('schedule-location').value;
-      const destination = document.getElementById('schedule-destination').value;
       const route = document.getElementById('schedule-route').value;
       const notes = document.getElementById('schedule-notes').value;
-      const companyName = document.getElementById('schedule-company-name').value.trim();
-      const companyContact = document.getElementById('schedule-company-contact').value.trim();
-      const companyAddress = document.getElementById('schedule-company-address').value.trim();
-      const companyPhone = document.getElementById('schedule-company-phone').value.trim();
-      const workerCount = document.getElementById('schedule-worker-count').value.trim();
-      const shiftTime = document.getElementById('schedule-shift-time').value.trim();
       const selectedClient = clients.find(client => String(client.id) === clientId);
       const selectedVehicle = vehicles.find(vehicle => vehicle.id === vehicleId);
       const selectedTablet = tablets.find(tablet => tablet.id === tabletId);
-      const editId = document.getElementById('schedule-edit-id').value;
-      const existing = editId ? schedules.find(s => String(s.id) === String(editId)) : null;
 
-      const taskRecord = {
-        id: editId ? Number(editId) : Date.now(),
+      schedules.unshift({
+        id: Date.now(),
         type,
         clientName: selectedClient ? selectedClient.name : 'Unknown client',
-        clientId: clientId,
         driverName,
         vehicleName: selectedVehicle ? getVehicleLabel(selectedVehicle) : 'Unassigned vehicle',
         tabletCode: selectedTablet ? selectedTablet.tabletId : 'Unassigned tablet',
         simPhone: selectedTablet ? selectedTablet.simPhone : 'Not assigned',
-        date, capacity, pickupTime, deliveryTime, location, destination, route, notes,
-        companyName, companyContact, companyAddress, companyPhone, workerCount, shiftTime,
-        status: existing ? existing.status || 'PENDING' : 'PENDING',
-        statusTime: existing ? existing.statusTime || null : null,
-        statusDriverName: existing ? existing.statusDriverName || null : null
-      };
-
-      if (editId) {
-        const existingIdx = schedules.findIndex(s => String(s.id) === String(editId));
-        if (existingIdx >= 0) {
-          schedules.splice(existingIdx, 1, taskRecord);
-        } else {
-          schedules.unshift(taskRecord);
-        }
-        cancelScheduleEdit();
-      } else {
-        schedules.unshift(taskRecord);
-      }
+        date,
+        capacity,
+        pickupTime,
+        deliveryTime,
+        location,
+        route,
+        notes
+      });
 
       saveStore(STORE_KEYS.schedules, schedules);
       renderSchedules();
@@ -3557,64 +2115,6 @@
       populateContactSelects();
       renderDriverTabletList();
     });
-
-    function editSchedule(scheduleId) {
-      const schedule = schedules.find(s => String(s.id) === String(scheduleId));
-      if (!schedule) return;
-
-      populateContactSelects();
-
-      document.getElementById('schedule-edit-id').value = String(schedule.id);
-      document.getElementById('schedule-type').value = schedule.type || 'TRIP';
-      document.getElementById('schedule-date').value = schedule.date || '';
-      document.getElementById('schedule-capacity').value = schedule.capacity || '';
-      document.getElementById('schedule-pickup-time').value = schedule.pickupTime || '';
-      document.getElementById('schedule-delivery-time').value = schedule.deliveryTime || '';
-      document.getElementById('schedule-location').value = schedule.location || '';
-      document.getElementById('schedule-destination').value = schedule.destination || '';
-      document.getElementById('schedule-route').value = schedule.route || '';
-      document.getElementById('schedule-notes').value = schedule.notes || '';
-
-      // Populate company fields
-      const companyTypes = ['CORPORATE','STAFF_RUN','STAFF_RETURN'];
-      const companyGroup = document.getElementById('company-fields-group');
-      if (companyGroup) companyGroup.style.display = companyTypes.includes(schedule.type) ? 'block' : 'none';
-      document.getElementById('schedule-company-name').value = schedule.companyName || '';
-      document.getElementById('schedule-company-contact').value = schedule.companyContact || '';
-      document.getElementById('schedule-company-address').value = schedule.companyAddress || '';
-      document.getElementById('schedule-company-phone').value = schedule.companyPhone || '';
-      document.getElementById('schedule-worker-count').value = schedule.workerCount || '';
-      document.getElementById('schedule-shift-time').value = schedule.shiftTime || '';
-
-      const clientMatch = clients.find(c => c.name === schedule.clientName);
-      if (clientMatch) document.getElementById('schedule-client').value = String(clientMatch.id);
-
-      const driverSelect = document.getElementById('schedule-driver');
-      if (driverSelect && schedule.driverName) driverSelect.value = schedule.driverName;
-
-      const vehicleMatch = vehicles.find(v => getVehicleLabel(v) === schedule.vehicleName);
-      if (vehicleMatch) document.getElementById('schedule-vehicle').value = vehicleMatch.id;
-
-      const tabletMatch = tablets.find(t => t.tabletId === schedule.tabletCode);
-      if (tabletMatch) document.getElementById('schedule-tablet').value = tabletMatch.id;
-
-      document.getElementById('schedule-submit-btn').textContent = 'Save Changes';
-      document.getElementById('schedule-cancel-edit-btn').style.display = 'inline-block';
-      document.getElementById('schedule-edit-banner').style.display = 'block';
-
-      const section = document.getElementById('schedule-form');
-      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      document.getElementById('manager-module-select').value = 'schedule';
-      filterManagerModules();
-    }
-
-    function cancelScheduleEdit() {
-      document.getElementById('schedule-edit-id').value = '';
-      document.getElementById('schedule-submit-btn').textContent = 'Create Manager Task';
-      document.getElementById('schedule-cancel-edit-btn').style.display = 'none';
-      document.getElementById('schedule-edit-banner').style.display = 'none';
-      document.getElementById('schedule-form').reset();
-    }
 
     function renderSchedules() {
       const list = document.getElementById('schedule-list');
@@ -3632,19 +2132,13 @@
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
               <span class="badge badge-info">Task Sent</span>
-              <button class="btn-secondary" onclick="editSchedule(${schedule.id})" style="width:auto;">Edit</button>
               <button class="btn-danger" onclick="deleteRecord('schedules',${idx})">Remove</button>
             </div>
           </div>
           <div class="muted">Capacity: ${escapeHtml(schedule.capacity || 'Not set')}</div>
           <div class="muted">Location: ${escapeHtml(schedule.location || 'Not set')}</div>
-          <div class="muted">Destination: ${escapeHtml(schedule.destination || 'Not set')}</div>
           <div class="muted">Route: ${escapeHtml(schedule.route || 'Not set')}</div>
           <div class="muted">Notes: ${escapeHtml(schedule.notes || 'None')}</div>
-          ${schedule.companyName ? `<div class="muted" style="margin-top:6px;">Company: <strong>${escapeHtml(schedule.companyName)}</strong> | Contact: ${escapeHtml(schedule.companyContact || 'N/A')} | Tel: ${escapeHtml(schedule.companyPhone || 'N/A')}</div><div class="muted">Workplace: ${escapeHtml(schedule.companyAddress || 'N/A')} | Workers: ${escapeHtml(schedule.workerCount || 'N/A')} | Shift: ${escapeHtml(schedule.shiftTime || 'N/A')}</div>` : ''}
-          <div style="margin-top:8px;">
-            <span class="badge ${schedule.status === 'COMPLETED' ? 'badge-success' : schedule.status === 'IN_PROGRESS' ? 'badge-vip' : schedule.status === 'ACCEPTED' ? 'badge-info' : 'badge-warning'}">Driver: ${escapeHtml(schedule.status || 'PENDING')}${schedule.statusDriverName ? ' · ' + escapeHtml(schedule.statusDriverName) : ''}${schedule.statusTime ? ' · ' + escapeHtml(schedule.statusTime) : ''}</span>
-          </div>
         </li>
       `).join('') : '<li class="item-card"><div><strong>No trips or tours scheduled yet.</strong><br><small class="muted">Use the form above to send tasks to the driver tablet.</small></div></li>';
     }
@@ -3664,8 +2158,6 @@
         body,
         time: new Date().toLocaleString()
       });
-
-      saveStore(STORE_KEYS.messages, messages);
 
       renderMessages();
       renderDriverMessages();
@@ -3689,8 +2181,6 @@
         body,
         time: new Date().toLocaleString()
       });
-
-      saveStore(STORE_KEYS.driverOutboundMessages, driverOutboundMessages);
 
       document.getElementById('driver-outbound-message').value = '';
       stopVoiceInput();
@@ -3833,62 +2323,6 @@
       status.className = `status-pill ${stateClass}`;
     }
 
-    function updateDriverGpsStatus(text, stateClass) {
-      const status = document.getElementById('driver-gps-status');
-      if (!status) return;
-      status.textContent = text;
-      status.className = `status-pill ${stateClass}`;
-    }
-
-    function renderDriverGpsHistory() {
-      const list = document.getElementById('driver-gps-history');
-      if (!list) return;
-      list.innerHTML = gpsTrail.length ? gpsTrail.slice(0, 5).map(entry => `
-        <li class="item-card">
-          <div>
-            <strong>${escapeHtml(entry.lat)}, ${escapeHtml(entry.lng)}</strong><br>
-            <small class="muted">${escapeHtml(entry.time)}</small>
-          </div>
-        </li>
-      `).join('') : '<li class="item-card"><div><strong>No GPS samples yet.</strong><br><small class="muted">Start tracking to capture live positions.</small></div></li>';
-    }
-
-    function refreshDriverGpsMap() {
-      if (!lastKnownGpsPosition) {
-        updateDriverGpsStatus('No live location yet', 'idle');
-        const updated = document.getElementById('driver-gps-updated');
-        if (updated) updated.textContent = 'Start tracking and wait for a GPS sample before refreshing the map.';
-        return;
-      }
-      const frame = document.getElementById('driver-gps-map-frame');
-      if (frame) frame.src = buildGoogleMapUrl(`${lastKnownGpsPosition.lat},${lastKnownGpsPosition.lng}`);
-      updateDriverGpsStatus('Live map refreshed', 'live');
-    }
-
-    function syncDriverGpsReadoutFromLastKnown() {
-      if (!lastKnownGpsPosition) return;
-      const lat = document.getElementById('driver-gps-lat');
-      const lng = document.getElementById('driver-gps-lng');
-      const accuracy = document.getElementById('driver-gps-accuracy');
-      const updated = document.getElementById('driver-gps-updated');
-      if (lat) lat.textContent = lastKnownGpsPosition.lat;
-      if (lng) lng.textContent = lastKnownGpsPosition.lng;
-      if (accuracy) accuracy.textContent = lastKnownGpsPosition.accuracy;
-      if (updated) updated.textContent = `Last update: ${lastKnownGpsPosition.time}`;
-    }
-
-    function startDriverGpsTracking() {
-      startGpsTracking();
-      updateDriverGpsStatus('Tracking live', 'live');
-    }
-
-    function stopDriverGpsTracking() {
-      stopGpsTracking();
-      updateDriverGpsStatus('Tracking idle', 'idle');
-      const updated = document.getElementById('driver-gps-updated');
-      if (updated) updated.textContent = 'GPS tracking has been stopped.';
-    }
-
     function renderGpsHistory() {
       const list = document.getElementById('gps-history');
       list.innerHTML = gpsTrail.length ? gpsTrail.slice(0, 5).map(entry => `
@@ -3921,8 +2355,6 @@
       }
       lastRenderedGpsAt = now;
       renderGpsHistory();
-      renderDriverGpsHistory();
-      syncDriverGpsReadoutFromLastKnown();
       renderGpsDeviceLogs();
       if (activeRouteTrip || force) {
         updateRouteTripStatus();
@@ -4138,7 +2570,6 @@
       }
 
       vehicleReports.unshift(reportRecord);
-      saveStore(STORE_KEYS.vehicleReports, vehicleReports);
 
       renderVehicleReports();
       document.getElementById('vehicle-report-form').reset();
@@ -4178,7 +2609,7 @@
       const schedule = schedules.find(item => item.id === scheduleId);
       if (!schedule) return;
 
-      const routeQuery = schedule.destination || schedule.route || schedule.location || schedule.clientName;
+      const routeQuery = schedule.route || schedule.location || schedule.clientName;
       updateGoogleMapView(routeQuery);
       switchView('manager-view', document.querySelectorAll('.nav-btn')[0]);
     }
@@ -4188,42 +2619,33 @@
       const list = document.getElementById('tablet-pickup-list');
       list.innerHTML = schedules.length ? schedules.map(schedule => {
         const client = clients.find(item => item.name === schedule.clientName);
-        const clientNote = client?.prefs || schedule.notes || 'No special requirements';
-        const clientStatus = client?.status || 'NORMAL';
-        const taskStatus = schedule.status || 'PENDING';
-        const isCorporate = ['CORPORATE','STAFF_RUN','STAFF_RETURN'].includes(schedule.type);
-        const statusBadgeClass = taskStatus === 'COMPLETED' ? 'badge-success' : taskStatus === 'IN_PROGRESS' ? 'badge-vip' : taskStatus === 'ACCEPTED' ? 'badge-info' : 'badge-warning';
         return `
           <li class="item-card stack" style="padding: 16px;">
             <div style="display: flex; justify-content: space-between; gap: 12px; width: 100%; align-items: flex-start;">
               <div class="task-meta">
                 <strong style="font-size: 1.1rem;">${escapeHtml(schedule.clientName)}</strong>
-                <span class="badge ${clientStatus === 'VIP' ? 'badge-vip' : 'badge-normal'}">${escapeHtml(clientStatus)}</span>
-                <span class="badge badge-info">${escapeHtml(schedule.type)}</span>
-                <span class="badge ${statusBadgeClass}">${escapeHtml(taskStatus)}</span>
+                <span class="badge ${client?.status === 'VIP' ? 'badge-vip' : 'badge-normal'}">${escapeHtml(schedule.type)}</span>
                 <small style="color: #64748b;">Driver: ${escapeHtml(schedule.driverName || 'Unassigned')}</small>
                 <small style="color: #64748b;">Vehicle: ${escapeHtml(schedule.vehicleName || 'Unassigned vehicle')}</small>
+                <small style="color: #64748b;">Tablet: ${escapeHtml(schedule.tabletCode || 'Unassigned')} | SIM ${escapeHtml(schedule.simPhone || 'N/A')}</small>
                 <small style="color: #64748b;">Pick Up: ${escapeHtml(formatDateTime(schedule.date, schedule.pickupTime))}</small>
                 <small style="color: #64748b;">Delivery: ${escapeHtml(formatDateTime(schedule.date, schedule.deliveryTime))}</small>
-                <small style="color: #64748b;">Pickup Point: ${escapeHtml(schedule.location || 'Not set')}</small>
-                <small style="color: #64748b;">Destination: ${escapeHtml(schedule.destination || 'Not set')}</small>
-                ${isCorporate && schedule.companyName ? `
-                  <small style="color:#a2f3cf; font-weight:600;">Company: ${escapeHtml(schedule.companyName)}</small>
-                  <small style="color: #64748b;">Workplace: ${escapeHtml(schedule.companyAddress || 'N/A')}</small>
-                  <small style="color: #64748b;">Contact: ${escapeHtml(schedule.companyContact || 'N/A')} | Tel: ${escapeHtml(schedule.companyPhone || 'N/A')}</small>
-                  <small style="color: #64748b;">Workers: ${escapeHtml(schedule.workerCount || 'N/A')} | Shift: ${escapeHtml(schedule.shiftTime || 'N/A')}</small>
-                ` : ''}
+                <small style="color: #64748b;">Capacity: ${escapeHtml(schedule.capacity || 'Not set')}</small>
                 <small style="color: #64748b;">Route: ${escapeHtml(schedule.route || 'Not set')}</small>
-                <small style="color: #64748b;">Client Message: ${escapeHtml(clientNote)}</small>
-                ${schedule.statusTime ? `<small style="color: #64748b;">Last update: ${escapeHtml(schedule.statusTime)}${schedule.statusDriverName ? ' by ' + escapeHtml(schedule.statusDriverName) : ''}</small>` : ''}
+                <small style="color: #64748b;">Pickup Point: ${escapeHtml(schedule.location || 'Not set')}</small>
+                <small style="color: #64748b;">Notes: ${escapeHtml(schedule.notes || 'No special requirements')}</small>
               </div>
-              <div class="inline-actions" style="flex-direction:column; align-items:stretch; gap:6px;">
-                ${taskStatus === 'PENDING' ? `<button onclick='driverConfirmTask(${schedule.id},"ACCEPTED")' class="btn-primary" style="width:auto;padding:8px 12px;margin-top:0;">&#10003; Accept Task</button>` : ''}
-                ${taskStatus === 'ACCEPTED' ? `<button onclick='driverConfirmTask(${schedule.id},"IN_PROGRESS")' class="btn-primary" style="width:auto;padding:8px 12px;margin-top:0;">&#9654; Start Trip</button>` : ''}
-                ${taskStatus === 'IN_PROGRESS' ? `<button onclick='driverConfirmTask(${schedule.id},"COMPLETED")' class="btn-secondary" style="width:auto;padding:8px 12px;margin-top:0;">&#9646;&#9646; Complete Trip</button>` : ''}
-                <button onclick='showFullscreenSign(${JSON.stringify(schedule.clientName)}, ${JSON.stringify(clientStatus)}, ${JSON.stringify(clientNote)})'
-                        class="btn-secondary" style="width:auto;padding:8px 12px;margin-top:0;">Pickup Sign</button>
-                <button onclick='openDriverNavigation(${schedule.id})' class="btn-secondary" type="button" style="width:auto;padding:8px 12px;margin-top:0;">Navigate</button>
+              <div class="inline-actions">
+                <button onclick='showFullscreenSign(${JSON.stringify(schedule.clientName)}, ${JSON.stringify(client?.status || 'NORMAL')}, ${JSON.stringify(schedule.notes || '')})' 
+                        class="btn-primary" style="width: auto; padding: 8px 14px; margin-top: 0;">
+                  Show Pickup Sign
+                </button>
+                <button onclick='previewTaskMap(${schedule.id})' class="btn-secondary" type="button">
+                  View Route
+                </button>
+                <button onclick='openDriverNavigation(${schedule.id})' class="btn-secondary" type="button">
+                  Open Navigation
+                </button>
               </div>
             </div>
           </li>
@@ -4231,22 +2653,11 @@
       }).join('') : '<li class="item-card"><div><strong>No manager tasks assigned yet.</strong><br><small class="muted">Create a trip or tour in the manager dashboard.</small></div></li>';
     }
 
-    function driverConfirmTask(scheduleId, newStatus) {
-      const idx = schedules.findIndex(s => String(s.id) === String(scheduleId));
-      if (idx < 0) return;
-      schedules[idx].status = newStatus;
-      schedules[idx].statusTime = new Date().toLocaleString();
-      schedules[idx].statusDriverName = signedInDriver || 'Driver';
-      saveStore(STORE_KEYS.schedules, schedules);
-      renderDriverTabletList();
-      renderSchedules();
-    }
-
     function openDriverNavigation(scheduleId) {
       const schedule = schedules.find(item => item.id === scheduleId);
       if (!schedule) return;
 
-      const destination = schedule.destination || schedule.location || schedule.route || schedule.clientName;
+      const destination = schedule.location || schedule.route || schedule.clientName;
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
       window.open(mapsUrl, '_blank', 'noopener');
     }
@@ -4302,7 +2713,6 @@
 
     function exitDriverKioskMode() {
       document.body.classList.remove('kiosk-mode');
-      stopTabletHeartbeat();
       const managerNavBtn = document.querySelectorAll('.nav-btn')[0];
       if (managerNavBtn) {
         switchView('manager-view', managerNavBtn);
@@ -4322,26 +2732,7 @@
     }
 
     // Initial render
-    // Show/hide company fields based on schedule type
-    (function() {
-      const typeSelect = document.getElementById('schedule-type');
-      const companyGroup = document.getElementById('company-fields-group');
-      const companyTypes = ['CORPORATE','STAFF_RUN','STAFF_RETURN'];
-      function toggleCompanyFields() {
-        if (companyGroup) companyGroup.style.display = companyTypes.includes(typeSelect.value) ? 'block' : 'none';
-      }
-      if (typeSelect) {
-        typeSelect.addEventListener('change', toggleCompanyFields);
-        toggleCompanyFields();
-      }
-    })();
-
     populateContactSelects();
-    signedInDriver = loadStore(STORE_KEYS.signedInDriver, null);
-    if (signedInDriver) {
-      document.getElementById('driver-signed-in-label').textContent =
-        `Signed in as: ${signedInDriver} · Touch optimized for iPad & SIM tablets`;
-    }
     initializeVoiceAssistant();
     if (opsConfig.email) {
       document.getElementById('ops-email').value = opsConfig.email;
@@ -4355,23 +2746,12 @@
     renderDriverMessages();
     renderManagerDriverUpdates();
     renderGpsHistory();
-    renderDriverGpsHistory();
-    syncDriverGpsReadoutFromLastKnown();
     renderGpsDeviceLogs();
-    renderTabletLinkStatus();
     renderRouteTripLogs();
     updateRouteTripStatus();
     renderVehicleReports();
     filterManagerModules();
     startVehicleReportCleanupTimer();
-    wireBackendProfileSelect();
-    populateBackendConfigForm();
-    updateBackendStatus();
-    if (backendState.config?.enabled) {
-      connectBackendTrial();
-    }
-
-    initAuthGate();
   </script>
 </body>
 </html>
